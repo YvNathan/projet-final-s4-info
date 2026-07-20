@@ -11,3 +11,6 @@ $routes->get('logout', 'AuthClientController::logout');
 $routes->get('home', 'HomeController::index', ['filter' => 'auth']);
 
 $routes->get('operateur/situation', 'SituationController::index');
+
+$routes->get('operateur/config', 'ConfigController::index');
+$routes->post('operateur/config', 'ConfigController::store');
