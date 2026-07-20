@@ -219,7 +219,7 @@
 
 
 ## V2
-### Côté opérateur
+### Côté opérateur                              (Nathan)
 - Recréer la table Operateur avec les champs :
     - nom TEXT
     - autre_operateur boolean
@@ -263,7 +263,40 @@
     - fonction index()
         - Récupère les montants à envoyer aux autres opérateurs (montant à transférer + commissions)
 
-#### Côté opérateur
+#### Côté Client                                (Lucas)
+- Inclure frais de retrait lors de l'envoie :
+    - FraisOperationModel :
+        - getFrais($idTypeOperation, $montant, $numeroDest = null)
+            - si autre opérateur => 0
+            - sinon récupérer frais retrait
+            - si même opérateur => frais transfert normal
+            - sinon appliquer commission inter-opérateur
+        - ajouter la fonction getCommission($montant, $numeroDest) dispo seulement pour trasfert :
+            - creer une fonction est_autre_operateur($numeor) verfication regex dans  
+            - si $numeroDEst est un autre operateur : commission calculer d'apres le pourcentage dans la table operateur
+            - sinon 0
+
+    - creation ApiFraisController  qui expose les fonctions de frais :
+        - fonction getFrais()
+        - fonction getComission()
+    
+    - routage des api
+    - vue home.php :
+        - amelioration des modals, afficher les frais necessaire selon le montant afficher 
+        - ajout d'un checkbox d'inclur frais de retrait :
+            - si oui, on change le montant total et le frais :
+                - le frais demandé sera le frais de montant + frais retrait
+        - afficher :
+            - frais de transfert et frais de retrait, commission et montant total
+    - modification de la fonction doTransfert() de Client controller :
+        - Verifier si frais inclus :
+            - si oui : montant = montant + fraisRetrait(montant)
+            - sinon rien
+- modification de createTransaction dans  :
+    - prendre en compte la commision
+    - pas de verification de compte client(numero) existant si autre operateur
+
+
 - Transfert vers destinataires multiples
 - Fonction createTransfertMultiple dans le TransactionModel
     - Vérifier que tous les destinataires appartiennent au même opérateur

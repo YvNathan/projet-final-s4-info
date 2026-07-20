@@ -96,6 +96,7 @@ class ClientController extends BaseController
     {
         $montant = (float)$this->request->getPost('montant');
         $numeros = $this->request->getPost('numeros') ?? [];
+        $inclureFraisRetrait = $this->request->getPost('inclure_frais_retrait') === '1';
 
         if (is_string($numeros)) {
             $numeros = array_filter(array_map('trim', explode(',', $numeros)));
@@ -108,7 +109,8 @@ class ClientController extends BaseController
                 session()->get('client_numero'),
                 date('Y-m-d H:i:s'),
                 $montant,
-                $numeros
+                $numeros,
+                $inclureFraisRetrait
             );
 
             return redirect()->to('/home')

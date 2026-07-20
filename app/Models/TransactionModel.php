@@ -197,7 +197,7 @@ class TransactionModel extends Model
         );
     }
 
-    public function createTransfertMultiple(string $numero, string $dateHeure, float $montant, array $numerosDest): array
+    public function createTransfertMultiple(string $numero, string $dateHeure, float $montant, array $numerosDest, bool $inclureFraisRetrait = false): array
     {
         $numerosDest = array_values(array_unique(array_map(
             fn (string $numeroDest) => $this->normaliserNumero($numeroDest),
@@ -210,6 +210,7 @@ class TransactionModel extends Model
 
         $configModel = new ConfigModel();
         $idOperateurCommun = null;
+        $estAutreOperateur = false;
 
         foreach ($numerosDest as $numeroDest) {
             $operateur = $configModel->getOperateurByPrefixe($numeroDest);
@@ -220,14 +221,20 @@ class TransactionModel extends Model
 
             if ($idOperateurCommun === null) {
                 $idOperateurCommun = (int) $operateur['id'];
+                $estAutreOperateur = (int) $operateur['autre_operateur'] === 1;
             } elseif ($idOperateurCommun !== (int) $operateur['id']) {
                 throw new \RuntimeException('Tous les destinataires doivent appartenir au même opérateur.');
             }
         }
 
         $typeOperationModel = new TypeOperationModel();
+        $fraisModel = new FraisOperationModel();
         $idTypeTransfert = $typeOperationModel->getIdByLibelle('transfert');
         $montantParDestinataire = $montant / count($numerosDest);
+
+        if ($inclureFraisRetrait && !$estAutreOperateur) {
+            $montantParDestinataire += $fraisModel->getFraisRetrait($montantParDestinataire);
+        }
 
         $this->db->transBegin();
 

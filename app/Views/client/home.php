@@ -140,6 +140,10 @@
                             <div class="d-flex justify-content-between small mt-1"><span>Commission</span><strong id="transfertCommission">0 Ar</strong></div>
                             <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="transfertTotal">0 Ar</strong></div>
                         </div>
+                        <div id="transfertPreviewMultiple" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
+                            <div id="transfertPreviewMultipleDetails"></div>
+                            <div class="d-flex justify-content-between small mt-2 pt-2 border-top"><span>Montant total</span><strong id="transfertMultipleTotal">0 Ar</strong></div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -200,6 +204,11 @@
         if (typeOperation === 'transfert' && document.querySelectorAll('#transfertDestinataires input[name="numero"], #transfertDestinataires input[name="numeros[]"]').length > 1) {
             preview.style.display = 'none';
             return;
+        }
+
+        var previewMultiple = document.getElementById('transfertPreviewMultiple');
+        if (previewMultiple) {
+            previewMultiple.style.display = 'none';
         }
 
         var endpoint = '<?= base_url('api/frais/get') ?>?montant=' + encodeURIComponent(montant) + '&type_operation=' + encodeURIComponent(typeOperation);
@@ -266,7 +275,7 @@
                 } else if (inputId === 'retrait_montant') {
                     updatePreview('retrait', 'retrait_montant', 'retraitPreview', 'retraitFrais', 'retraitTotal');
                 } else if (inputId === 'transfert_montant') {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
+                    refreshTransfertPreview();
                 }
             });
         });
@@ -275,9 +284,83 @@
         var transfertCheckbox = document.getElementById('inclure_frais_retrait');
         var btnAjouterDestinataire = document.getElementById('btnAjouterDestinataire');
         var formTransfert = document.getElementById('formTransfert');
-        var inclureFraisRetraitWrapper = document.getElementById('inclureFraisRetraitWrapper');
+
+        function refreshTransfertPreviewMultiple() {
+            var montantInput = document.getElementById('transfert_montant');
+            var preview = document.getElementById('transfertPreview');
+            var previewMultiple = document.getElementById('transfertPreviewMultiple');
+            var details = document.getElementById('transfertPreviewMultipleDetails');
+            var totalElement = document.getElementById('transfertMultipleTotal');
+
+            if (preview) {
+                preview.style.display = 'none';
+            }
+
+            var numeros = Array.prototype.map.call(
+                transfertDestinataires.querySelectorAll('input[name="numero"], input[name="numeros[]"]'),
+                function (input) { return input.value.trim(); }
+            ).filter(function (numero) { return numero !== ''; });
+
+            var montant = montantInput ? montantInput.value.trim() : '';
+
+            if (!montant || Number(montant) <= 0 || numeros.length < 2) {
+                if (previewMultiple) {
+                    previewMultiple.style.display = 'none';
+                }
+                return;
+            }
+
+            var endpoint = '<?= base_url('api/frais/get-multiple') ?>?montant=' + encodeURIComponent(montant);
+            numeros.forEach(function (numero) {
+                endpoint += '&numeros_destinataire[]=' + encodeURIComponent(numero);
+            });
+            if (transfertCheckbox) {
+                endpoint += '&inclure_frais_retrait=' + (transfertCheckbox.checked ? '1' : '0');
+            }
+
+            fetch(endpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Erreur de chargement');
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    var lignes = (data && data.destinataires) || [];
+
+                    details.innerHTML = lignes.map(function (ligne) {
+                        return '<div class="d-flex justify-content-between small mt-1">' +
+                            '<span>' + ligne.numero + '</span>' +
+                            '<strong>' + formatAr(ligne.montant_total) +
+                            ' <span class="text-muted">(frais ' + formatAr(ligne.frais_transfert) +
+                            (ligne.commission > 0 ? ', commission ' + formatAr(ligne.commission) : '') +
+                            (ligne.frais_retrait > 0 ? ', frais retrait ' + formatAr(ligne.frais_retrait) : '') +
+                            ')</span></strong></div>';
+                    }).join('');
+
+                    totalElement.textContent = formatAr(data && data.montant_total !== undefined ? data.montant_total : 0);
+                    previewMultiple.style.display = 'block';
+                })
+                .catch(function () {
+                    if (previewMultiple) {
+                        previewMultiple.style.display = 'none';
+                    }
+                });
+        }
 
         function refreshTransfertPreview() {
+            var inputs = transfertDestinataires.querySelectorAll('input[name="numero"], input[name="numeros[]"]');
+
+            if (inputs.length > 1) {
+                refreshTransfertPreviewMultiple();
+                return;
+            }
+
+            var previewMultiple = document.getElementById('transfertPreviewMultiple');
+            if (previewMultiple) {
+                previewMultiple.style.display = 'none';
+            }
+
             var montantInput = document.getElementById('transfert_montant');
             if (montantInput && montantInput.value.trim()) {
                 updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
@@ -295,10 +378,6 @@
             formTransfert.action = multiple
                 ? '<?= base_url('transfert/multiple') ?>'
                 : '<?= base_url('transfert') ?>';
-
-            if (inclureFraisRetraitWrapper) {
-                inclureFraisRetraitWrapper.style.display = multiple ? 'none' : '';
-            }
 
             refreshTransfertPreview();
         }

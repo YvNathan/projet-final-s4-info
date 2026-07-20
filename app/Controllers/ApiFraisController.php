@@ -66,6 +66,46 @@ class ApiFraisController extends BaseController
         ]);
     }
 
+    public function getFraisMultiple()
+    {
+        $montant = (float) $this->request->getGet('montant');
+        $numerosDest = $this->request->getGet('numeros_destinataire') ?? $this->request->getGet('numeros_dest') ?? [];
+        $inclureFraisRetrait = $this->request->getGet('inclure_frais_retrait') === '1';
+
+        if (is_string($numerosDest)) {
+            $numerosDest = array_filter(array_map('trim', explode(',', $numerosDest)));
+        }
+
+        $numerosDest = array_values(array_unique(array_filter($numerosDest, static fn ($n) => trim((string) $n) !== '')));
+
+        if ($montant <= 0 || count($numerosDest) < 2) {
+            return $this->response->setJSON([
+                'destinataires' => [],
+                'montant_par_destinataire' => 0,
+                'montant_total' => 0,
+            ]);
+        }
+
+        $fraisModel = new FraisOperationModel();
+        $montantParDestinataire = $montant / count($numerosDest);
+
+        $destinataires = [];
+        $montantTotal = 0.0;
+
+        foreach ($numerosDest as $numeroDest) {
+            $details = $fraisModel->getDetailsTransfert($montantParDestinataire, (string) $numeroDest, $inclureFraisRetrait);
+
+            $destinataires[] = array_merge(['numero' => $numeroDest], $details);
+            $montantTotal += $details['montant_total'];
+        }
+
+        return $this->response->setJSON([
+            'destinataires' => $destinataires,
+            'montant_par_destinataire' => $montantParDestinataire,
+            'montant_total' => $montantTotal,
+        ]);
+    }
+
     public function getCommission()
     {
         $montant = (float) $this->request->getGet('montant');
