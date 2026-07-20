@@ -13,7 +13,7 @@
             - si existe on continue
             - sinon :
                 - validation du prefix
-                - insertion du nouveu client
+                - insertion du nouveau client
         - generation de session et stockage des info
         - redirection vers home
     - Fonction logout() :
@@ -31,10 +31,42 @@
 - creation de la vue :
     - formulaire avec champ text pour le numero
     - validation js du numero 
-- creation de home :
+- creation de home associer à ClientController:
     - vue home avec info session
     - route avec filter
 
 #### Operations
 - Voir solde :
-    - dans le homeController 
+    - ClientController : envoyer le solde du client connecté
+    - view home.php :
+        - affichage du solde (hidden par défaut)
+        - bouton "Voir le solde"
+        - JS : afficher/masquer le solde
+
+- Faire un dépôt :
+    - ClientController : créer doDepot() -> TransactionModel::createDepot()
+    - view home.php :
+        - bouton "Faire un dépôt"
+        - modal Bootstrap
+        - formulaire
+
+- Faire un retrait :
+    - ClientController : créer doRetrait() -> TransactionModel::createRetrait()
+    - view home.php :
+        - bouton "Faire un retrait"
+        - modal Bootstrap
+        - formulaire
+
+- Faire un transfert :
+    - ClientController : créer doTransfert() -> TransactionModel::createTransfert()
+    - view home.php :
+        - bouton "Faire un transfert"
+        - modal Bootstrap
+        - formulaire
+
+- Voir l'historique :
+    - TransactionModel : créer getHistoriqueClient()
+    - ClientController : historique()
+    - view 
+    - view historique.php :
+        - tableau Bootstrap
