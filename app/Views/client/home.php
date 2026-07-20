@@ -93,7 +93,12 @@
 
                         </div>
 
+                        <a href="<?= base_url('historique') ?>" class="btn btn-dark">
+                            <i class="bi bi-clock-history"></i>
+                            Voir historique
+                        </a>
                     </div>
+
 
                     <div class="card-footer text-end">
 
