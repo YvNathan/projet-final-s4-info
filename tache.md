@@ -216,3 +216,48 @@
     - Modification de ClientModel -> ajout paginate dans getSituationsClients()
     - Ajout du pager dans SituationController
     - Ajout des blocs de navigation de page dans la view
+
+
+## V2
+### Côté opérateur
+- Recréer la table Operateur avec les champs :
+    - nom TEXT
+    - autre_operateur boolean
+    - pct_commission
+- Revoir le Model pour Config
+- Revoir le Controller et la view rattachée à Config pour ajouter l'opérateur (le nom uniquement dans la liste)
+
+- Créer OperateurController
+    - getAll()
+    - modify()
+    - delete()
+
+- View Operateur pour gérer la liste des opérateurs et le pourcentage de commission par opérateur autre que soi
+
+- Mettre FK_id_operateur dans :
+    - config
+
+- Ajout de la fonction : getOperateurByPrefixe($numero)
+    - Récupère l'opérateur lié à un préfixe
+
+- Ajouter la colonne commission dans Transaction
+
+- Dans TransactionModel :
+    - Retravailler la fonction getSituationGains : retourne array au lieu de float 
+        - Filtre possible sur type d'opération
+        - Séparation opérateur et autres opérateurs
+            - récupérer le préfixe des numéros destinataires
+            - récupérer les opérateurs concernés à partir de ces préfixes
+            - séparer les gains par opérateurs
+            - toujours récupérer le total
+
+    - Fonction : getMontantsAEnvoyerAutresOperateurs() : array
+        - Filtrer les transactions sur les opérations de transferts
+        - Séparer les opérations par opérateurs autres que soi
+        - Récupérer le total des montants transférés + commissions
+
+- Modification de SituationController pour la séparation opérateur/autres
+
+- Nouveau Controller : ReportController pour gérer les montants à envoyer aux autres opérateurs
+    - fonction index()
+        - Récupère les montants à envoyer aux autres opérateurs (montant à transférer + commissions)
