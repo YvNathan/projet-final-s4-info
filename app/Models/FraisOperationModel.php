@@ -91,6 +91,7 @@ class FraisOperationModel extends Model
         return $row !== null ? (float) $row['frais'] : null;
     }
 
+
     public function ajouterBareme(int $idTypeOperation, float $borneMin, float $borneMax, float $frais)
     {
         if ($this->chevaucheTrancheExistante($idTypeOperation, $borneMin, $borneMax)) {

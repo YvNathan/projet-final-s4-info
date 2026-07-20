@@ -87,15 +87,6 @@ class OperateurModel extends Model
         return $operateur;
     }
 
-    public function ajouterOperateur(string $nom, float $pctCommission)
-    {
-        return $this->insert([
-            'nom'             => $nom,
-            'autre_operateur' => 1,
-            'pct_commission'  => $pctCommission,
-        ]);
-    }
-
     public function modify(int $id, string $nom, float $pctCommission): bool
     {
         $operateur = $this->find($id);

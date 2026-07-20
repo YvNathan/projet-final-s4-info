@@ -65,6 +65,10 @@
                 <div class="modal-body">
                     <label for="depot_montant" class="form-label">Montant</label>
                     <input type="number" class="form-control" id="depot_montant" name="montant" min="1" required>
+                    <div id="depotPreview" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
+                        <div class="d-flex justify-content-between small"><span>Frais</span><strong id="depotFrais">0 Ar</strong></div>
+                        <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="depotTotal">0 Ar</strong></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -87,6 +91,10 @@
                 <div class="modal-body">
                     <label for="retrait_montant" class="form-label">Montant</label>
                     <input type="number" class="form-control" id="retrait_montant" name="montant" min="1" required>
+                    <div id="retraitPreview" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
+                        <div class="d-flex justify-content-between small"><span>Frais</span><strong id="retraitFrais">0 Ar</strong></div>
+                        <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="retraitTotal">0 Ar</strong></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -114,6 +122,10 @@
                     <div class="mb-3">
                         <label for="transfert_montant" class="form-label">Montant</label>
                         <input type="number" class="form-control" id="transfert_montant" name="montant" min="1" required>
+                        <div id="transfertPreview" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
+                            <div class="d-flex justify-content-between small"><span>Frais</span><strong id="transfertFrais">0 Ar</strong></div>
+                            <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="transfertTotal">0 Ar</strong></div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -143,5 +155,75 @@
             icon.className = 'bi bi-eye';
         }
     }
+
+    function formatAr(value) {
+        var amount = Number(value || 0);
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(amount) + ' Ar';
+    }
+
+    function updatePreview(typeOperation, inputId, previewId, fraisId, totalId) {
+        var input = document.getElementById(inputId);
+        var preview = document.getElementById(previewId);
+        var fraisElement = document.getElementById(fraisId);
+        var totalElement = document.getElementById(totalId);
+
+        if (!input || !preview || !fraisElement || !totalElement) {
+            return;
+        }
+
+        var montant = input.value.trim();
+
+        if (!montant || Number(montant) <= 0) {
+            preview.style.display = 'none';
+            return;
+        }
+
+        var endpoint = '<?= base_url('api/frais/get') ?>?montant=' + encodeURIComponent(montant) + '&type_operation=' + encodeURIComponent(typeOperation);
+
+        fetch(endpoint, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Erreur de chargement');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                var frais = Number(data && data.frais !== undefined ? data.frais : 0);
+                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + frais);
+
+                fraisElement.textContent = formatAr(frais);
+                totalElement.textContent = formatAr(total);
+                preview.style.display = 'block';
+            })
+            .catch(function () {
+                fraisElement.textContent = formatAr(0);
+                totalElement.textContent = formatAr(Number(montant) || 0);
+                preview.style.display = 'block';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ['depot_montant', 'retrait_montant', 'transfert_montant'].forEach(function (inputId) {
+            var input = document.getElementById(inputId);
+            if (!input) {
+                return;
+            }
+
+            input.addEventListener('input', function () {
+                if (inputId === 'depot_montant') {
+                    updatePreview('depot', 'depot_montant', 'depotPreview', 'depotFrais', 'depotTotal');
+                } else if (inputId === 'retrait_montant') {
+                    updatePreview('retrait', 'retrait_montant', 'retraitPreview', 'retraitFrais', 'retraitTotal');
+                } else if (inputId === 'transfert_montant') {
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal');
+                }
+            });
+        });
+    });
 </script>
 <?= $this->endSection() ?>
