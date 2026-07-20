@@ -86,7 +86,12 @@ class TransactionModel extends Model
         $destinataire = null;
 
         if ($libelleOperation === 'transfert' && $numeroDest !== null) {
+            $estAutreOperateur = $fraisModel->estAutreOperateur($numeroDest);
             $destinataire = $clientModel->where('numero', $numeroDest)->first();
+
+            if (!$estAutreOperateur && $destinataire === null) {
+                throw new \RuntimeException("Le numéro du destinataire n'a pas encore de compte.");
+            }
         }
 
         if ($libelleOperation === 'depot') {

@@ -165,7 +165,7 @@ class FraisOperationModel extends Model
             : '';
     }
 
-    private function estAutreOperateur(string $numero): bool
+    public function estAutreOperateur(string $numero): bool
     {
         $numero = $this->normaliserNumero($numero);
 
