@@ -92,12 +92,17 @@
     - routage des api
     - vue home.php :
         - amelioration des modals, afficher les frais necessaire selon le montant afficher 
-        - ajout d'un checkbox d'inclusion de frais
+        - ajout d'un checkbox d'inclur frais de retrait :
+            - si oui, on change le montant total et le frais :
+                - le frais demandé sera le frais de montant + frais retrait
         - afficher :
-            - frais, commission et montant total
+            - frais de transfert et frais de retrait, commission et montant total
     - modification de la fonction doTransfert() de Client controller :
         - Verifier si frais inclus :
             - si oui : montant = montant + fraisRetrait(montant)
             - sinon rien
+- modification de createTransaction dans  :
+    - prendre en compte la commision
+    - pas de verification de compte client(numero) existant si autre operateur 
          
     

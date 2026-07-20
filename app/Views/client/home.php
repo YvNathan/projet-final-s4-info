@@ -122,8 +122,13 @@
                     <div class="mb-3">
                         <label for="transfert_montant" class="form-label">Montant</label>
                         <input type="number" class="form-control" id="transfert_montant" name="montant" min="1" required>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="inclure_frais_retrait" name="inclure_frais_retrait" value="1">
+                            <label class="form-check-label" for="inclure_frais_retrait">Inclure les frais de retrait</label>
+                        </div>
                         <div id="transfertPreview" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
-                            <div class="d-flex justify-content-between small"><span>Frais</span><strong id="transfertFrais">0 Ar</strong></div>
+                            <div class="d-flex justify-content-between small"><span>Frais transfert</span><strong id="transfertFrais">0 Ar</strong></div>
+                            <div class="d-flex justify-content-between small mt-1"><span>Frais retrait</span><strong id="transfertFraisRetrait">0 Ar</strong></div>
                             <div class="d-flex justify-content-between small mt-1"><span>Commission</span><strong id="transfertCommission">0 Ar</strong></div>
                             <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="transfertTotal">0 Ar</strong></div>
                         </div>
@@ -165,12 +170,13 @@
         }).format(amount) + ' Ar';
     }
 
-    function updatePreview(typeOperation, inputId, previewId, fraisId, totalId, commissionId) {
+    function updatePreview(typeOperation, inputId, previewId, fraisId, totalId, commissionId, fraisRetraitId) {
         var input = document.getElementById(inputId);
         var preview = document.getElementById(previewId);
         var fraisElement = document.getElementById(fraisId);
         var totalElement = document.getElementById(totalId);
         var commissionElement = commissionId ? document.getElementById(commissionId) : null;
+        var fraisRetraitElement = fraisRetraitId ? document.getElementById(fraisRetraitId) : null;
 
         if (!input || !preview || !fraisElement || !totalElement) {
             return;
@@ -187,8 +193,12 @@
 
         if (typeOperation === 'transfert') {
             var numeroDest = document.getElementById('transfert_numero');
+            var includeFees = document.getElementById('inclure_frais_retrait');
             if (numeroDest) {
                 endpoint += '&numero_destinataire=' + encodeURIComponent(numeroDest.value);
+            }
+            if (includeFees) {
+                endpoint += '&inclure_frais_retrait=' + (includeFees.checked ? '1' : '0');
             }
         }
 
@@ -202,11 +212,15 @@
                 return response.json();
             })
             .then(function (data) {
-                var frais = Number(data && data.frais !== undefined ? data.frais : 0);
+                var fraisTransfert = Number(data && data.frais_transfert !== undefined ? data.frais_transfert : 0);
+                var fraisRetrait = Number(data && data.frais_retrait !== undefined ? data.frais_retrait : 0);
                 var commission = Number(data && data.commission !== undefined ? data.commission : 0);
-                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + frais + commission);
+                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + fraisTransfert + fraisRetrait + commission);
 
-                fraisElement.textContent = formatAr(frais);
+                fraisElement.textContent = formatAr(fraisTransfert);
+                if (fraisRetraitElement) {
+                    fraisRetraitElement.textContent = formatAr(fraisRetrait);
+                }
                 if (commissionElement) {
                     commissionElement.textContent = formatAr(commission);
                 }
@@ -215,6 +229,9 @@
             })
             .catch(function () {
                 fraisElement.textContent = formatAr(0);
+                if (fraisRetraitElement) {
+                    fraisRetraitElement.textContent = formatAr(0);
+                }
                 if (commissionElement) {
                     commissionElement.textContent = formatAr(0);
                 }
@@ -236,17 +253,28 @@
                 } else if (inputId === 'retrait_montant') {
                     updatePreview('retrait', 'retrait_montant', 'retraitPreview', 'retraitFrais', 'retraitTotal');
                 } else if (inputId === 'transfert_montant') {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission');
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
                 }
             });
         });
 
         var transfertNumero = document.getElementById('transfert_numero');
+        var transfertCheckbox = document.getElementById('inclure_frais_retrait');
+
         if (transfertNumero) {
             transfertNumero.addEventListener('input', function () {
                 var montantInput = document.getElementById('transfert_montant');
                 if (montantInput && montantInput.value.trim()) {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission');
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
+                }
+            });
+        }
+
+        if (transfertCheckbox) {
+            transfertCheckbox.addEventListener('change', function () {
+                var montantInput = document.getElementById('transfert_montant');
+                if (montantInput && montantInput.value.trim()) {
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
                 }
             });
         }

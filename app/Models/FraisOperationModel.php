@@ -83,21 +83,44 @@ class FraisOperationModel extends Model
 
     public function getFrais(int $idTypeOperation, float $montant, ?string $numeroDest = null): float
     {
-        $typeOperationModel = new TypeOperationModel();
-        $libelleOperation = $typeOperationModel->find($idTypeOperation);
-        $libelle = is_array($libelleOperation) && isset($libelleOperation['libelle'])
-            ? (string) $libelleOperation['libelle']
-            : '';
+        $libelleOperation = $this->getLibelleOperation($idTypeOperation);
 
-        if ($libelle !== 'transfert') {
-            return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
-        }
+        if ($libelleOperation === 'transfert') {
+            if ($numeroDest === null || trim($numeroDest) === '') {
+                return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+            }
 
-        if ($numeroDest === null || trim($numeroDest) === '') {
-            return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+            return $this->estAutreOperateur($numeroDest)
+                ? 0.0
+                : $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
         }
 
         return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+    }
+
+    public function getFraisRetrait(float $montant): float
+    {
+        $typeOperationModel = new TypeOperationModel();
+        $idTypeOperation = $typeOperationModel->getIdByLibelle('retrait');
+
+        return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+    }
+
+    public function getDetailsTransfert(float $montant, ?string $numeroDest = null, bool $inclureFraisRetrait = false): array
+    {
+        $typeOperationModel = new TypeOperationModel();
+        $idTypeOperationTransfert = $typeOperationModel->getIdByLibelle('transfert');
+
+        $fraisTransfert = $this->getFrais($idTypeOperationTransfert, $montant, $numeroDest);
+        $fraisRetrait = $inclureFraisRetrait ? $this->getFraisRetrait($montant) : 0.0;
+        $commission = $this->getCommission($montant, $numeroDest);
+
+        return [
+            'frais_transfert' => $fraisTransfert,
+            'frais_retrait' => $fraisRetrait,
+            'commission' => $commission,
+            'montant_total' => $montant + $fraisTransfert + $fraisRetrait + $commission,
+        ];
     }
 
     public function getCommission(float $montant, ?string $numeroDest): float
@@ -130,6 +153,16 @@ class FraisOperationModel extends Model
             ->first();
 
         return $row !== null ? (float) $row['frais'] : 0.0;
+    }
+
+    private function getLibelleOperation(int $idTypeOperation): string
+    {
+        $typeOperationModel = new TypeOperationModel();
+        $operation = $typeOperationModel->find($idTypeOperation);
+
+        return is_array($operation) && isset($operation['libelle'])
+            ? (string) $operation['libelle']
+            : '';
     }
 
     private function estAutreOperateur(string $numero): bool
