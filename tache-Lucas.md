@@ -25,3 +25,6 @@
 - creation de la vue :
     - formulaire avec champ text pour le numero
     - validation js du numero 
+- creation de home :
+    - vue home avec info session
+    - route avec filter
