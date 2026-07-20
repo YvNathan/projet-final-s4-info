@@ -97,9 +97,7 @@ class FraisOperationModel extends Model
             return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
         }
 
-        return $this->estAutreOperateur($numeroDest)
-            ? 0.0
-            : $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+        return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
     }
 
     public function getCommission(float $montant, ?string $numeroDest): float
