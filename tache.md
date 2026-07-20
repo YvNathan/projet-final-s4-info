@@ -254,6 +254,7 @@
     - Fonction : getMontantsAEnvoyerAutresOperateurs() : array
         - Filtrer les transactions sur les opérations de transferts
         - Séparer les opérations par opérateurs autres que soi
+        - Filtrer les transactions sur les opérateurs autres que soi
         - Récupérer le total des montants transférés + commissions
 
 - Modification de SituationController pour la séparation opérateur/autres
