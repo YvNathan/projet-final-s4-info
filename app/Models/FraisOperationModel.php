@@ -81,14 +81,84 @@ class FraisOperationModel extends Model
         return $builder->paginate($nbPage);
     }
 
-    public function getFrais(int $idTypeOperation, float $montant): ?float
+    public function getFrais(int $idTypeOperation, float $montant, ?string $numeroDest = null): float
+    {
+        $typeOperationModel = new TypeOperationModel();
+        $libelleOperation = $typeOperationModel->find($idTypeOperation);
+        $libelle = is_array($libelleOperation) && isset($libelleOperation['libelle'])
+            ? (string) $libelleOperation['libelle']
+            : '';
+
+        if ($libelle !== 'transfert') {
+            return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+        }
+
+        if ($numeroDest === null || trim($numeroDest) === '') {
+            return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+        }
+
+        return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+    }
+
+    public function getCommission(float $montant, ?string $numeroDest): float
+    {
+        if ($montant <= 0 || $numeroDest === null || trim($numeroDest) === '') {
+            return 0.0;
+        }
+
+        if (!$this->estAutreOperateur($numeroDest)) {
+            return 0.0;
+        }
+
+        $configModel = new ConfigModel();
+        $operateur = $configModel->getOperateurByPrefixe($this->normaliserNumero($numeroDest));
+
+        if ($operateur === null) {
+            return 0.0;
+        }
+
+        $pctCommission = (float) ($operateur['pct_commission'] ?? 0);
+
+        return $montant * ($pctCommission / 100);
+    }
+
+    private function calculerFraisParTypeOperation(int $idTypeOperation, float $montant): float
     {
         $row = $this->where('id_type_operation', $idTypeOperation)
             ->where('borne_min <', $montant)
             ->where('borne_max >=', $montant)
             ->first();
 
-        return $row !== null ? (float) $row['frais'] : null;
+        return $row !== null ? (float) $row['frais'] : 0.0;
+    }
+
+    private function estAutreOperateur(string $numero): bool
+    {
+        $numero = $this->normaliserNumero($numero);
+
+        if ($numero === '' || !preg_match('/^0[0-9]{9}$/', $numero)) {
+            return false;
+        }
+
+        $configModel = new ConfigModel();
+        $operateur = $configModel->getOperateurByPrefixe($numero);
+
+        if ($operateur === null) {
+            return false;
+        }
+
+        return (int) ($operateur['autre_operateur'] ?? 0) === 1;
+    }
+
+    private function normaliserNumero(string $numero): string
+    {
+        $numero = preg_replace('/\s+/', '', $numero);
+
+        if (str_starts_with($numero, '+261')) {
+            return '0' . substr($numero, 4);
+        }
+
+        return $numero;
     }
 
 

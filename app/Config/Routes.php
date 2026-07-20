@@ -29,6 +29,7 @@ $routes->post('operateur/frais/(:num)/update', 'FraisOperationController::update
 $routes->post('operateur/frais/(:num)/delete', 'FraisOperationController::delete/$1');
 
 $routes->get('api/frais/get', 'ApiFraisController::getFrais');
+$routes->get('api/frais/commission', 'ApiFraisController::getCommission');
 
 $routes->get('operateur/operateurs', 'OperateurController::index');
 $routes->post('operateur/operateurs', 'OperateurController::store');

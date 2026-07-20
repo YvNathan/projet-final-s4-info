@@ -80,9 +80,14 @@
             - sinon récupérer frais retrait
             - si même opérateur => frais transfert normal
             - sinon appliquer commission inter-opérateur
+        - ajouter la fonction getCommission($montant, $numeroDest) dispo seulement pour trasfert :
+            - creer une fonction est_autre_operateur($numeor) verfication regex dans  
+            - si $numeroDEst est un autre operateur : commission calculer d'apres le pourcentage dans la table operateur
+            - sinon 0
 
     - creation ApiFraisController  qui expose les fonctions de frais :
         - fonction getFrais()
+        - fonction getComission()
     
     - routage des api
     - vue home.php :
