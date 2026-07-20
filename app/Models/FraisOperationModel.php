@@ -85,14 +85,8 @@ class FraisOperationModel extends Model
     {
         $libelleOperation = $this->getLibelleOperation($idTypeOperation);
 
-        if ($libelleOperation === 'transfert') {
-            if ($numeroDest === null || trim($numeroDest) === '') {
-                return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
-            }
-
-            return $this->estAutreOperateur($numeroDest)
-                ? 0.0
-                : $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
+        if ($libelleOperation !== 'transfert') {
+            return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
         }
 
         return $this->calculerFraisParTypeOperation($idTypeOperation, $montant);
@@ -112,8 +106,14 @@ class FraisOperationModel extends Model
         $idTypeOperationTransfert = $typeOperationModel->getIdByLibelle('transfert');
 
         $fraisTransfert = $this->getFrais($idTypeOperationTransfert, $montant, $numeroDest);
-        $fraisRetrait = $inclureFraisRetrait ? $this->getFraisRetrait($montant) : 0.0;
-        $commission = $this->getCommission($montant, $numeroDest);
+        $fraisRetrait = 0.0;
+        $commission = 0.0;
+
+        if ($this->estAutreOperateur($numeroDest ?? '')) {
+            $commission = $this->getCommission($montant, $numeroDest);
+        } elseif ($inclureFraisRetrait) {
+            $fraisRetrait = $this->getFraisRetrait($montant);
+        }
 
         return [
             'frais_transfert' => $fraisTransfert,
