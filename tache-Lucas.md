@@ -70,3 +70,29 @@
     - view 
     - view historique.php :
         - tableau Bootstrap
+
+## V2
+### coté Client
+- Inclure frais de retrait lors de l'envoie :
+    - FraisOperationModel :
+        - getFrais($idTypeOperation, $montant, $numeroDest = null)
+            - si autre opérateur => 0
+            - sinon récupérer frais retrait
+            - si même opérateur => frais transfert normal
+            - sinon appliquer commission inter-opérateur
+
+    - creation ApiFraisController  qui expose les fonctions de frais :
+        - fonction getFrais()
+    
+    - routage des api
+    - vue home.php :
+        - amelioration des modals, afficher les frais necessaire selon le montant afficher 
+        - ajout d'un checkbox d'inclusion de frais
+        - afficher :
+            - frais, commission et montant total
+    - modification de la fonction doTransfert() de Client controller :
+        - Verifier si frais inclus :
+            - si oui : montant = montant + fraisRetrait(montant)
+            - sinon rien
+         
+    
