@@ -108,7 +108,7 @@
 <!-- Modal Transfert -->
 <div class="modal fade" id="modalTransfert" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="<?= base_url('transfert') ?>" method="post">
+        <form id="formTransfert" action="<?= base_url('transfert') ?>" method="post">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Transfert</h5>
@@ -116,13 +116,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="transfert_numero" class="form-label">Numéro destinataire</label>
-                        <input type="text" class="form-control" id="transfert_numero" name="numero" required>
+                        <label class="form-label">Destinataire(s)</label>
+                        <div id="transfertDestinataires" class="d-grid gap-2">
+                            <div class="input-group transfert-destinataire">
+                                <input type="text" class="form-control" name="numero" placeholder="Numéro destinataire" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="btnAjouterDestinataire">
+                            <i class="bi bi-plus-lg me-1"></i>Ajouter un destinataire
+                        </button>
+                        <div class="form-text">Pour plusieurs destinataires, tous doivent appartenir au même opérateur ; le montant sera réparti équitablement entre eux.</div>
                     </div>
                     <div class="mb-3">
                         <label for="transfert_montant" class="form-label">Montant</label>
                         <input type="number" class="form-control" id="transfert_montant" name="montant" min="1" required>
-                        <div class="form-check mt-2">
+                        <div class="form-check mt-2" id="inclureFraisRetraitWrapper">
                             <input class="form-check-input" type="checkbox" id="inclure_frais_retrait" name="inclure_frais_retrait" value="1">
                             <label class="form-check-label" for="inclure_frais_retrait">Inclure les frais de retrait</label>
                         </div>
@@ -189,10 +197,15 @@
             return;
         }
 
+        if (typeOperation === 'transfert' && document.querySelectorAll('#transfertDestinataires input[name="numero"], #transfertDestinataires input[name="numeros[]"]').length > 1) {
+            preview.style.display = 'none';
+            return;
+        }
+
         var endpoint = '<?= base_url('api/frais/get') ?>?montant=' + encodeURIComponent(montant) + '&type_operation=' + encodeURIComponent(typeOperation);
 
         if (typeOperation === 'transfert') {
-            var numeroDest = document.getElementById('transfert_numero');
+            var numeroDest = document.querySelector('#transfertDestinataires input[name="numero"], #transfertDestinataires input[name="numeros[]"]');
             var includeFees = document.getElementById('inclure_frais_retrait');
             if (numeroDest) {
                 endpoint += '&numero_destinataire=' + encodeURIComponent(numeroDest.value);
@@ -258,25 +271,75 @@
             });
         });
 
-        var transfertNumero = document.getElementById('transfert_numero');
+        var transfertDestinataires = document.getElementById('transfertDestinataires');
         var transfertCheckbox = document.getElementById('inclure_frais_retrait');
+        var btnAjouterDestinataire = document.getElementById('btnAjouterDestinataire');
+        var formTransfert = document.getElementById('formTransfert');
+        var inclureFraisRetraitWrapper = document.getElementById('inclureFraisRetraitWrapper');
 
-        if (transfertNumero) {
-            transfertNumero.addEventListener('input', function () {
-                var montantInput = document.getElementById('transfert_montant');
-                if (montantInput && montantInput.value.trim()) {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
+        function refreshTransfertPreview() {
+            var montantInput = document.getElementById('transfert_montant');
+            if (montantInput && montantInput.value.trim()) {
+                updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
+            }
+        }
+
+        function updateTransfertMode() {
+            var inputs = transfertDestinataires.querySelectorAll('input[name="numero"], input[name="numeros[]"]');
+            var multiple = inputs.length > 1;
+
+            inputs.forEach(function (input) {
+                input.name = multiple ? 'numeros[]' : 'numero';
+            });
+
+            formTransfert.action = multiple
+                ? '<?= base_url('transfert/multiple') ?>'
+                : '<?= base_url('transfert') ?>';
+
+            if (inclureFraisRetraitWrapper) {
+                inclureFraisRetraitWrapper.style.display = multiple ? 'none' : '';
+            }
+
+            refreshTransfertPreview();
+        }
+
+        if (transfertDestinataires && btnAjouterDestinataire) {
+            btnAjouterDestinataire.addEventListener('click', function () {
+                var group = document.createElement('div');
+                group.className = 'input-group transfert-destinataire';
+                group.innerHTML = '<input type="text" class="form-control" name="numero" placeholder="Numéro destinataire" required>' +
+                    '<button type="button" class="btn btn-outline-danger btnRetirerDestinataire"><i class="bi bi-trash"></i></button>';
+                transfertDestinataires.appendChild(group);
+                updateTransfertMode();
+            });
+
+            transfertDestinataires.addEventListener('click', function (event) {
+                var btn = event.target.closest('.btnRetirerDestinataire');
+                if (!btn) {
+                    return;
                 }
+                btn.closest('.transfert-destinataire').remove();
+                updateTransfertMode();
+            });
+
+            transfertDestinataires.addEventListener('input', function (event) {
+                if (event.target.matches('input[name="numero"], input[name="numeros[]"]')) {
+                    refreshTransfertPreview();
+                }
+            });
+
+            document.getElementById('modalTransfert').addEventListener('hidden.bs.modal', function () {
+                transfertDestinataires.querySelectorAll('.transfert-destinataire').forEach(function (group, index) {
+                    if (index > 0) {
+                        group.remove();
+                    }
+                });
+                updateTransfertMode();
             });
         }
 
         if (transfertCheckbox) {
-            transfertCheckbox.addEventListener('change', function () {
-                var montantInput = document.getElementById('transfert_montant');
-                if (montantInput && montantInput.value.trim()) {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission', 'transfertFraisRetrait');
-                }
-            });
+            transfertCheckbox.addEventListener('change', refreshTransfertPreview);
         }
     });
 </script>
