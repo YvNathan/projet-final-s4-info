@@ -35,3 +35,5 @@ $routes->get('operateur/operateurs', 'OperateurController::index');
 $routes->post('operateur/operateurs', 'OperateurController::store');
 $routes->post('operateur/operateurs/(:num)/update', 'OperateurController::update/$1');
 $routes->post('operateur/operateurs/(:num)/delete', 'OperateurController::delete/$1');
+
+$routes->get('operateur/report', 'ReportController::index');

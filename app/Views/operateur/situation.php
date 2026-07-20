@@ -31,15 +31,14 @@ $gainAutresOperateurs = array_sum(array_column($gains['autres_operateurs'], 'gai
 
 <div class="card mb-4">
     <div class="card-body">
-        <div class="font-mono text-uppercase text-muted" style="font-size:12px; letter-spacing:.18em;">Gain total</div>
+        <div class="font-mono text-uppercase text-muted" style="font-size:12px; letter-spacing:.18em;">Frais perçus totaux</div>
         <p class="mb-1" style="font-size:34px; font-weight:800; color:var(--pmi-teal);"><?= number_format($gains['total'], 0, ',', ' ') ?> Ar</p>
-        <p class="text-muted mb-0">Somme des frais perçus, tous opérateurs confondus.</p>
         <p class="text-muted mb-0 mt-1">dont <strong><?= number_format($gainAutresOperateurs, 0, ',', ' ') ?> Ar</strong> sur autres opérateurs</p>
     </div>
 </div>
 
 <div class="mb-4">
-    <h5 class="mb-3">Gains par opérateur</h5>
+    <h5 class="mb-3">Ventilation par opérateur</h5>
     <div class="row g-3">
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card h-100">

@@ -65,6 +65,11 @@
                             <i class="bi bi-diagram-3"></i><span>Opérateurs</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="app-nav__link <?= $current === 'operateur/report' ? 'active' : '' ?>" href="<?= base_url('operateur/report') ?>">
+                            <i class="bi bi-send"></i><span>Montants à envoyer</span>
+                        </a>
+                    </li>
                 </ul>
             <?php endif; ?>
 
