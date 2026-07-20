@@ -13,7 +13,6 @@ class ClientModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_operateur',
         'nom',
         'numero',
     ];
@@ -47,4 +46,9 @@ class ClientModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getSituationsClients(): array
+    {
+        return $this->select('id, nom, numero, solde')->findAll();
+    }
 }

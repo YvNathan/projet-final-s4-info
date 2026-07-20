@@ -12,7 +12,7 @@ class ConfigModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_operateur', 'prefixe'];
+    protected $allowedFields    = ['prefixe'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -29,20 +29,14 @@ class ConfigModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_operateur' => 'required|is_natural_no_zero|is_not_unique[operateur.id]',
-        'prefixe'      => 'required|min_length[2]|max_length[10]|is_unique[config.prefixe,id,{id}]',
+        'prefixe' => 'required|min_length[2]|max_length[10]|is_unique[config.prefixe,id,{id}]',
     ];
     protected $validationMessages   = [
-        'id_operateur' => [
-            'required'           => "L'opérateur est obligatoire.",
-            'is_natural_no_zero' => "L'opérateur est invalide.",
-            'is_not_unique'      => "L'opérateur indiqué n'existe pas.",
-        ],
         'prefixe' => [
             'required'   => 'Le préfixe est obligatoire.',
             'min_length' => 'Le préfixe doit contenir au moins 2 caractères.',
             'max_length' => 'Le préfixe ne doit pas dépasser 10 caractères.',
-            'is_unique'  => 'Ce préfixe est déjà attribué à un opérateur.',
+            'is_unique'  => 'Ce préfixe existe déjà.',
         ],
     ];
     protected $skipValidation       = false;
@@ -59,11 +53,10 @@ class ConfigModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function ajouterPrefixe(int $idOperateur, string $prefixe)
+    public function ajouterPrefixe(string $prefixe)
     {
         return $this->insert([
-            'id_operateur' => $idOperateur,
-            'prefixe'      => $prefixe,
+            'prefixe' => $prefixe,
         ]);
     }
 }
