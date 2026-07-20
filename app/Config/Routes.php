@@ -14,6 +14,7 @@ $routes->get('home', 'ClientController::index', ['filter' => 'auth:client']);
 $routes->post('depot', 'ClientController::doDepot', ['filter' => 'auth:client']);
 $routes->post('retrait', 'ClientController::doRetrait', ['filter' => 'auth:client']);
 $routes->post('transfert', 'ClientController::doTransfert', ['filter' => 'auth:client']);
+$routes->post('transfert/multiple', 'ClientController::doTransfertMultiple', ['filter' => 'auth:client']);
 $routes->get('historique', 'ClientController::historique', ['filter' => 'auth:client']);
 
 $routes->get('operateur/situation', 'SituationController::index');

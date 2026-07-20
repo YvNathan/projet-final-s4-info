@@ -262,3 +262,12 @@
 - Nouveau Controller : ReportController pour gérer les montants à envoyer aux autres opérateurs
     - fonction index()
         - Récupère les montants à envoyer aux autres opérateurs (montant à transférer + commissions)
+
+#### Côté opérateur
+- Transfert vers destinataires multiples
+- Fonction createTransfertMultiple dans le TransactionModel
+    - Vérifier que tous les destinataires appartiennent au même opérateur
+    - Récupérer le montant réparti
+    - Procéder à la transaction pour chaque destinataire : créer une transaction db et utiliser en boucle la fonction createTransaction pour chaque destinataire 
+
+- 

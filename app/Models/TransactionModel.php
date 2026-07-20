@@ -202,6 +202,71 @@ class TransactionModel extends Model
         );
     }
 
+    public function createTransfertMultiple(string $numero, string $dateHeure, float $montant, array $numerosDest): array
+    {
+        $numerosDest = array_values(array_unique(array_map(
+            fn (string $numeroDest) => $this->normaliserNumero($numeroDest),
+            $numerosDest
+        )));
+
+        if (count($numerosDest) < 2) {
+            throw new \RuntimeException('Un transfert multiple doit avoir au moins deux destinataires distincts.');
+        }
+
+        $configModel = new ConfigModel();
+        $idOperateurCommun = null;
+
+        foreach ($numerosDest as $numeroDest) {
+            $operateur = $configModel->getOperateurByPrefixe($numeroDest);
+
+            if ($operateur === null) {
+                throw new \RuntimeException("Le numéro {$numeroDest} n'appartient à aucun opérateur connu.");
+            }
+
+            if ($idOperateurCommun === null) {
+                $idOperateurCommun = (int) $operateur['id'];
+            } elseif ($idOperateurCommun !== (int) $operateur['id']) {
+                throw new \RuntimeException('Tous les destinataires doivent appartenir au même opérateur.');
+            }
+        }
+
+        $typeOperationModel = new TypeOperationModel();
+        $idTypeTransfert = $typeOperationModel->getIdByLibelle('transfert');
+        $montantParDestinataire = $montant / count($numerosDest);
+
+        $this->db->transBegin();
+
+        try {
+            $idsTransactions = [];
+
+            foreach ($numerosDest as $numeroDest) {
+                $idsTransactions[] = $this->createTransaction(
+                    $idTypeTransfert,
+                    $numero,
+                    $dateHeure,
+                    $montantParDestinataire,
+                    $numeroDest,
+                );
+            }
+
+            if ($this->db->transStatus() === false) {
+                throw new \RuntimeException('Le transfert multiple a échoué.');
+            }
+
+            $this->db->transCommit();
+
+            return $idsTransactions;
+        } catch (\Throwable $throwable) {
+            $this->db->transRollback();
+
+            if ($throwable instanceof \RuntimeException) {
+                throw $throwable;
+            }
+
+            throw new \RuntimeException('Une erreur est survenue pendant le transfert multiple.', 0, $throwable);
+        }
+    }
+
     public function getHistoriqueTransactions(string $numero)
     {
         $numero = $this->normaliserNumero($numero);

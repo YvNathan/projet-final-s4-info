@@ -92,6 +92,33 @@ class ClientController extends BaseController
                 ->with('error', $e->getMessage());
         }
     }
+    public function doTransfertMultiple()
+    {
+        $montant = (float)$this->request->getPost('montant');
+        $numeros = $this->request->getPost('numeros') ?? [];
+
+        if (is_string($numeros)) {
+            $numeros = array_filter(array_map('trim', explode(',', $numeros)));
+        }
+
+        $transactionModel = new TransactionModel();
+
+        try {
+            $transactionModel->createTransfertMultiple(
+                session()->get('client_numero'),
+                date('Y-m-d H:i:s'),
+                $montant,
+                $numeros
+            );
+
+            return redirect()->to('/home')
+                ->with('success', 'Transfert multiple effectué avec succès.');
+        } catch (\Throwable $e) {
+            return redirect()->to('/home')
+                ->with('error', $e->getMessage());
+        }
+    }
+
     public function historique()
     {
         $transactionModel = new TransactionModel();
