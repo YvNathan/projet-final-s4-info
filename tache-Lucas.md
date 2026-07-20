@@ -7,17 +7,18 @@
         - si session redirect to home
         - sinon redirect login
     - Fonction doLogin() : 
-        - validation du numero envoyer 
+        - validation du numero envoyer : validation general
         - rediriger si invalide
-        - get Client, si inexsitant utiliser register
+        - get Client :
+            - si existe on continue
+            - sinon :
+                - validation du prefix
+                - insertion du nouveu client
         - generation de session et stockage des info
         - redirection vers home
     - Fonction logout() :
         - destruction de session 
         - redirection vers login
-
-    - Fonction register() :
-        - verifier si le numero 
 
 - ajout des routes :
     - login (get) -> login()
