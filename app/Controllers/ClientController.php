@@ -3,7 +3,9 @@
 namespace App\Controllers;
 
 use App\Models\ClientModel;
+use App\Models\FraisOperationModel;
 use App\Models\TransactionModel;
+use App\Models\TypeOperationModel;
 
 class ClientController extends BaseController
 {
@@ -64,6 +66,14 @@ class ClientController extends BaseController
     {
         $montant = (float)$this->request->getPost('montant');
         $numero = $this->request->getPost('numero');
+        $inclureFraisRetrait = $this->request->getPost('inclure_frais_retrait') === '1';
+
+        if ($inclureFraisRetrait) {
+            $fraisOperationModel = new FraisOperationModel();
+            $typeOperationModel = new TypeOperationModel();
+            $idTypeOperationRetrait = $typeOperationModel->getIdByLibelle('retrait');
+            $montant += $fraisOperationModel->getFrais($idTypeOperationRetrait, $montant);
+        }
 
         $transactionModel = new TransactionModel();
 

@@ -72,27 +72,27 @@ class TransactionModel extends Model
         }
 
         $frais = $fraisModel->getFrais($idTypeOperation, $montant, $numeroDest);
+        $commission = 0.0;
+        $libelleOperation = $typeOperationModel->getLibelleById($idTypeOperation);
+
+        if ($libelleOperation === 'transfert' && $numeroDest !== null) {
+            $commission = $fraisModel->getCommission($montant, $numeroDest);
+        }
 
         if ($frais === null) {
             throw new \RuntimeException("Aucun barème de frais ne correspond à ce montant.");
         }
 
-        $libelleOperation = $typeOperationModel->getLibelleById($idTypeOperation);
-
         $destinataire = null;
 
         if ($libelleOperation === 'transfert' && $numeroDest !== null) {
             $destinataire = $clientModel->where('numero', $numeroDest)->first();
-
-            if ($destinataire === null) {
-                throw new \RuntimeException("Le numéro du destinataire n'a pas encore de compte");
-            }
         }
 
         if ($libelleOperation === 'depot') {
             $soldeClientApresOperation = (float) $client['solde'] + $montant;
         } elseif ($libelleOperation === 'retrait' || $libelleOperation === 'transfert') {
-            $soldeClientApresOperation = (float) $client['solde'] - $montant - $frais;
+            $soldeClientApresOperation = (float) $client['solde'] - $montant - $frais - $commission;
         } else {
             throw new \RuntimeException("Le type d'opération '{$libelleOperation}' n'est pas pris en charge.");
         }
@@ -116,6 +116,7 @@ class TransactionModel extends Model
                 'date_heure'          => $dateHeure,
                 'montant'             => $montant,
                 'frais_applique'      => $frais,
+                'commission'          => $commission,
                 'numero_destinataire' => $numeroDest,
             ]);
 

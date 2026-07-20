@@ -13,10 +13,12 @@ class ApiFraisController extends BaseController
         $montant = (float) $this->request->getGet('montant');
         $typeOperation = $this->request->getGet('type_operation');
         $numeroDest = $this->request->getGet('numero_destinataire') ?? $this->request->getGet('numero_dest');
+        $inclureFraisRetrait = $this->request->getGet('inclure_frais_retrait') === '1';
 
         if ($montant <= 0) {
             return $this->response->setJSON([
-                'frais' => 0,
+                'frais_transfert' => 0,
+                'frais_retrait' => 0,
                 'commission' => 0,
                 'montant_total' => 0,
             ]);
@@ -45,14 +47,15 @@ class ApiFraisController extends BaseController
             ]);
         }
 
-        $frais = $fraisModel->getFrais($idTypeOperation, $montant, $numeroDest);
-        $commission = $fraisModel->getCommission($montant, $numeroDest);
+        if ($idTypeOperation === null) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'error' => 'Type d\'opération requis',
+            ]);
+        }
 
-        return $this->response->setJSON([
-            'frais' => $frais,
-            'commission' => $commission,
-            'montant_total' => $montant + $frais + $commission,
-        ]);
+        $details = $fraisModel->getDetailsTransfert($montant, $numeroDest, $inclureFraisRetrait);
+
+        return $this->response->setJSON($details);
     }
 
     public function getCommission()
