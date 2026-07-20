@@ -47,15 +47,23 @@ class ApiFraisController extends BaseController
             ]);
         }
 
-        if ($idTypeOperation === null) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'error' => 'Type d\'opération requis',
-            ]);
+        $libelleOperation = $typeOperationModel->find($idTypeOperation);
+        $libelle = is_array($libelleOperation) && isset($libelleOperation['libelle'])
+            ? (string) $libelleOperation['libelle']
+            : '';
+
+        if ($libelle === 'transfert') {
+            $details = $fraisModel->getDetailsTransfert($montant, $numeroDest, $inclureFraisRetrait);
+
+            return $this->response->setJSON($details);
         }
 
-        $details = $fraisModel->getDetailsTransfert($montant, $numeroDest, $inclureFraisRetrait);
+        $frais = $fraisModel->getFrais($idTypeOperation, $montant, $numeroDest);
 
-        return $this->response->setJSON($details);
+        return $this->response->setJSON([
+            'frais' => $frais,
+            'montant_total' => $montant + $frais,
+        ]);
     }
 
     public function getCommission()

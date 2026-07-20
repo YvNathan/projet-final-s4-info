@@ -212,12 +212,12 @@
                 return response.json();
             })
             .then(function (data) {
-                var fraisTransfert = Number(data && data.frais_transfert !== undefined ? data.frais_transfert : 0);
+                var fraisValeur = Number(data && data.frais !== undefined ? data.frais : (data && data.frais_transfert !== undefined ? data.frais_transfert : 0));
                 var fraisRetrait = Number(data && data.frais_retrait !== undefined ? data.frais_retrait : 0);
                 var commission = Number(data && data.commission !== undefined ? data.commission : 0);
-                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + fraisTransfert + fraisRetrait + commission);
+                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + fraisValeur + fraisRetrait + commission);
 
-                fraisElement.textContent = formatAr(fraisTransfert);
+                fraisElement.textContent = formatAr(fraisValeur);
                 if (fraisRetraitElement) {
                     fraisRetraitElement.textContent = formatAr(fraisRetrait);
                 }
