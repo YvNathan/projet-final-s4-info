@@ -13,9 +13,29 @@
     - Fonction : getSituationsClients()
         - Liste des clients de l'opérateur avec leur solde actuel
 
+- Creation du model ConfigModel
+    - Fonction : ajouterPrefixe()
+
 - Creation du model FraisOperationModel
     - Fonction : getFrais($id_type_operation, $montant)
         - Filtrer sur le type d'opération et le montant
+
+    - Fonction privée : chevaucheTrancheExistante($idTypeOperation, $borneMin, $borneMax, ?int $excludeId = null)
+        - Vérifier que les bornes ne se chevauchent pas avec des bornes existantes :
+            - $BorneMax > borne_min
+            - $BorneMix < borne_max
+            - Exclure l'id actuel si ça conçerne la modification d'une tranche
+
+    - Fonction : ajouterBareme($idTypeOperation, $borneMix, $borneMax, $frais)
+        - Vérifier que ça ne chevauche pas une tranche
+        - insérer
+    
+    - Fonction : modifierBareme($idTypeOperation, $borneMin, $borneMax, $frais, $idBareme)
+        - Vérifier que les nouvelles bornes ne chevauchent pas des tranches
+        - Modifier
+
+    - Fonction : supprimerBareme($id)
+        - Supprimer le bareme
 
 - Création du model TransactionModel
     - Fonction : createTransaction($idTypeOperation, $numero, $dateHeure, $montant, $numeroDest)

@@ -70,10 +70,6 @@ class FraisOperationModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    /**
-     * Récupère le frais applicable pour un type d'opération et un montant donnés,
-     * en filtrant sur la tranche (borne_min exclue, borne_max incluse).
-     */
     public function getFrais(int $idTypeOperation, float $montant): ?float
     {
         $row = $this->where('id_type_operation', $idTypeOperation)
@@ -82,5 +78,56 @@ class FraisOperationModel extends Model
             ->first();
 
         return $row !== null ? (float) $row['frais'] : null;
+    }
+
+    public function ajouterBareme(int $idTypeOperation, float $borneMin, float $borneMax, float $frais)
+    {
+        if ($this->chevaucheTrancheExistante($idTypeOperation, $borneMin, $borneMax)) {
+            throw new \RuntimeException("Cette tranche chevauche une tranche existante pour ce type d'opération.");
+        }
+
+        return $this->insert([
+            'id_type_operation' => $idTypeOperation,
+            'borne_min'         => $borneMin,
+            'borne_max'         => $borneMax,
+            'frais'             => $frais,
+        ]);
+    }
+
+    public function modifierBareme(int $id, float $borneMin, float $borneMax, float $frais): bool
+    {
+        $tranche = $this->find($id);
+
+        if ($tranche === null) {
+            throw new \RuntimeException("Cette tranche de frais n'existe pas.");
+        }
+
+        if ($this->chevaucheTrancheExistante((int) $tranche['id_type_operation'], $borneMin, $borneMax, $id)) {
+            throw new \RuntimeException("Cette tranche chevauche une tranche existante pour ce type d'opération.");
+        }
+
+        return (bool) $this->update($id, [
+            'borne_min' => $borneMin,
+            'borne_max' => $borneMax,
+            'frais'     => $frais,
+        ]);
+    }
+
+    public function supprimerBareme(int $id): bool
+    {
+        return $this->delete($id);
+    }
+
+    private function chevaucheTrancheExistante(int $idTypeOperation, float $borneMin, float $borneMax, ?int $excludeId = null): bool
+    {
+        $builder = $this->where('id_type_operation', $idTypeOperation)
+            ->where('borne_min <', $borneMax)
+            ->where('borne_max >', $borneMin);
+
+        if ($excludeId !== null) {
+            $builder = $builder->where('id !=', $excludeId);
+        }
+
+        return $builder->countAllResults() > 0;
     }
 }
