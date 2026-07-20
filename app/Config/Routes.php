@@ -20,6 +20,8 @@ $routes->get('operateur/situation', 'SituationController::index');
 
 $routes->get('operateur/config', 'ConfigController::index');
 $routes->post('operateur/config', 'ConfigController::store');
+$routes->post('operateur/config/(:num)/update', 'ConfigController::update/$1');
+$routes->post('operateur/config/(:num)/delete', 'ConfigController::delete/$1');
 
 $routes->get('operateur/frais', 'FraisOperationController::index');
 $routes->post('operateur/frais', 'FraisOperationController::store');

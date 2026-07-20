@@ -29,6 +29,7 @@ class ConfigModel extends Model
 
     // Validation
     protected $validationRules      = [
+        'id'           => 'permit_empty|is_natural_no_zero',
         'prefixe'      => 'required|min_length[2]|max_length[10]|is_unique[config.prefixe,id,{id}]',
         'id_operateur' => 'required|is_natural_no_zero|is_not_unique[operateur.id]',
     ];
@@ -65,6 +66,30 @@ class ConfigModel extends Model
             'prefixe'      => $prefixe,
             'id_operateur' => $idOperateur,
         ]);
+    }
+
+    public function modifierPrefixe(int $id, string $prefixe, int $idOperateur): bool
+    {
+        $config = $this->find($id);
+
+        if ($config === null) {
+            throw new \RuntimeException("Ce préfixe n'existe pas.");
+        }
+
+        return (bool) $this->update($id, [
+            'id'           => $id,
+            'prefixe'      => $prefixe,
+            'id_operateur' => $idOperateur,
+        ]);
+    }
+
+    public function supprimerPrefixe(int $id): bool
+    {
+        if ($this->find($id) === null) {
+            throw new \RuntimeException("Ce préfixe n'existe pas.");
+        }
+
+        return $this->delete($id);
     }
 
     public function getOperateurByPrefixe(string $numero): ?array
