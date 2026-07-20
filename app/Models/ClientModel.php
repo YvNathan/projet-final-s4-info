@@ -47,8 +47,8 @@ class ClientModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getSituationsClients(): array
+    public function getSituationsClients(int $perPage = 10): array
     {
-        return $this->select('id, nom, numero, solde')->findAll();
+        return $this->select('id, nom, numero, solde')->paginate($perPage);
     }
 }

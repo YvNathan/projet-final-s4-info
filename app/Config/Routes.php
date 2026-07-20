@@ -13,3 +13,6 @@ $routes->get('home', 'ClientController::index', ['filter' => 'auth']);
 $routes->post('depot', 'ClientController::doDepot');
 $routes->post('retrait', 'ClientController::doRetrait');
 $routes->post('transfert', 'ClientController::doTransfert');
+$routes->get('home', 'HomeController::index', ['filter' => 'auth']);
+
+$routes->get('operateur/situation', 'SituationController::index');
