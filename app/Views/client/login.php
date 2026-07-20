@@ -1,47 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
+<?= $this->extend('layout/auth') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
-</head>
+<?= $this->section('contenu') ?>
 
-<body>
-    <?php
-    if (session()->getFlashdata('error')) {
-        echo '<p style="color:red;">' . session()->getFlashdata('error') . '</p>';
-    }
-    ?>
-   <body>
-    <div class="container">
-        <form action="<?= base_url('login') ?>" method="post">
-            <div class="form-group">
-                <label for="numero">Numéro de téléphone:</label>
-                <input type="text" name="numero" id="numero" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Se connecter</button>
-        </form>
+<p class="text-muted text-center mb-4">Connectez-vous avec votre numéro de téléphone.</p>
+
+<form action="<?= base_url('login') ?>" method="post" id="loginForm">
+    <div class="mb-3">
+        <label for="numero" class="form-label">Numéro de téléphone</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+            <input type="text" name="numero" id="numero" class="form-control" placeholder="034 12 345 67" required>
+        </div>
+        <div class="form-text">Formats acceptés : 03X XX XXX XX ou +261 3X XX XXX XX</div>
     </div>
-</body>
-</body>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+        </button>
+    </div>
+</form>
 
-</html>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
 <script>
-    let submitButton = document.querySelector('button[type="submit"]');
-    submitButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        let numeroInput = document.getElementById("numero");
-        let numero = numeroInput.value;
-        const motif = "^(?:\\+261|0)\\s?(20|32|33|34|37|38|39)(?:[\\s]?\\d{2})(?:[\\s]?\\d{3})(?:[\\s]?\\d{2})$";
-        let regex = new RegExp(motif);
-        if (regex.test(numero)) {
-            document.getElementById("numero").style.borderColor = "green";
-            this.form.submit();
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
+        var numeroInput = document.getElementById('numero');
+        var motif = "^(?:\\+261|0)\\s?(20|32|33|34|37|38|39)(?:[\\s]?\\d{2})(?:[\\s]?\\d{3})(?:[\\s]?\\d{2})$";
+        if (new RegExp(motif).test(numeroInput.value)) {
+            numeroInput.classList.remove('is-invalid');
         } else {
-            document.getElementById("numero").style.borderColor = "red";
+            event.preventDefault();
+            numeroInput.classList.add('is-invalid');
         }
     });
 </script>
+<?= $this->endSection() ?>

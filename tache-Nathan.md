@@ -17,8 +17,9 @@
     - Fonction : ajouterPrefixe()
 
 - Creation du model FraisOperationModel
-    - Fonction : getAll($nbPage)
+    - Fonction : getAll($nbPage, ?$idTypeOperation)
         - Paginer les résultats avec $nbPage
+        - Filtre sur le type d'opération
 
     - Fonction : getFrais($id_type_operation, $montant)
         - Filtrer sur le type d'opération et le montant

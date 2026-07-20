@@ -1,62 +1,67 @@
-<?= $this->extend('operateur/layout') ?>
+<?= $this->extend('layout/app') ?>
 
 <?= $this->section('contenu') ?>
 
-<h1 class="mb-4">Situation</h1>
-
 <div class="card mb-4">
     <div class="card-body">
-        <h5 class="card-title">Gain total</h5>
-        <p class="card-text h3 text-success"><?= number_format($gainTotal, 0, ',', ' ') ?> Ar</p>
-        <p class="card-text text-muted">Somme des frais perçus sur l'ensemble des retraits et transferts.</p>
+        <div class="font-mono text-uppercase text-muted" style="font-size:12px; letter-spacing:.18em;">Gain total</div>
+        <p class="mb-1" style="font-size:34px; font-weight:800; color:var(--pmi-teal);"><?= number_format($gainTotal, 0, ',', ' ') ?> Ar</p>
+        <p class="text-muted mb-0">Somme des frais perçus sur l'ensemble des retraits et transferts.</p>
     </div>
 </div>
 
-<h2 class="h4 mb-3">Comptes clients</h2>
+<div class="panel">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h5 class="mb-0">Comptes clients</h5>
+        <span class="text-secondary small"><?= count($clients) ?> client(s) sur cette page</span>
+    </div>
 
-<table class="table table-striped table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>Nom</th>
-            <th>Numéro</th>
-            <th class="text-right">Solde</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (empty($clients)) : ?>
-            <tr>
-                <td colspan="3" class="text-center text-muted">Aucun client enregistré.</td>
-            </tr>
-        <?php else : ?>
-            <?php foreach ($clients as $client) : ?>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
                 <tr>
-                    <td><?= esc($client['nom'] ?? '—') ?></td>
-                    <td><?= esc($client['numero']) ?></td>
-                    <td class="text-right"><?= number_format($client['solde'], 0, ',', ' ') ?> Ar</td>
+                    <th>Nom</th>
+                    <th>Numéro</th>
+                    <th class="text-end">Solde</th>
                 </tr>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                <?php if (empty($clients)) : ?>
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">Aucun client enregistré.</td>
+                    </tr>
+                <?php else : ?>
+                    <?php foreach ($clients as $client) : ?>
+                        <tr>
+                            <td><?= esc($client['nom'] ?? '—') ?></td>
+                            <td class="font-mono"><?= esc($client['numero']) ?></td>
+                            <td class="text-end"><?= number_format($client['solde'], 0, ',', ' ') ?> Ar</td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 
-<?php if ($pager->getPageCount() > 1) : ?>
-    <?php $previousPageURI = $pager->getPreviousPageURI(); ?>
-    <?php $nextPageURI = $pager->getNextPageURI(); ?>
-    <nav aria-label="Pagination des comptes clients">
-        <ul class="pagination">
-            <li class="page-item <?= $previousPageURI !== null ? '' : 'disabled' ?>">
-                <a class="page-link" href="<?= $previousPageURI ?? '#' ?>">Précédent</a>
-            </li>
-            <?php for ($page = 1; $page <= $pager->getPageCount(); $page++) : ?>
-                <li class="page-item <?= $page === $pager->getCurrentPage() ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $pager->getPageURI($page) ?>"><?= $page ?></a>
+    <?php if ($pager->getPageCount() > 1) : ?>
+        <?php $previousPageURI = $pager->getPreviousPageURI(); ?>
+        <?php $nextPageURI = $pager->getNextPageURI(); ?>
+        <nav aria-label="Pagination des comptes clients" class="mt-2">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item <?= $previousPageURI !== null ? '' : 'disabled' ?>">
+                    <a class="page-link" href="<?= $previousPageURI ?? '#' ?>">Précédent</a>
                 </li>
-            <?php endfor; ?>
-            <li class="page-item <?= $nextPageURI !== null ? '' : 'disabled' ?>">
-                <a class="page-link" href="<?= $nextPageURI ?? '#' ?>">Suivant</a>
-            </li>
-        </ul>
-    </nav>
-<?php endif; ?>
+                <?php for ($page = 1; $page <= $pager->getPageCount(); $page++) : ?>
+                    <li class="page-item <?= $page === $pager->getCurrentPage() ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $pager->getPageURI($page) ?>"><?= $page ?></a>
+                    </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $nextPageURI !== null ? '' : 'disabled' ?>">
+                    <a class="page-link" href="<?= $nextPageURI ?? '#' ?>">Suivant</a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
+</div>
 
 <?= $this->endSection() ?>
