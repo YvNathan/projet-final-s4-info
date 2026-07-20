@@ -280,6 +280,42 @@ class TransactionModel extends Model
         ];
     }
 
+    public function getMontantsAEnvoyerAutresOperateurs(): array
+    {
+        $typeOperationModel = new TypeOperationModel();
+        $idTypeTransfert = $typeOperationModel->getIdByLibelle('transfert');
+
+        $lignes = $this->select("
+                operateur.id AS id_operateur,
+                operateur.nom AS nom_operateur,
+                SUM(transactions.montant) AS montant_transfere,
+                SUM(transactions.commission) AS commission
+            ")
+            ->join('config', "SUBSTR(transactions.numero_destinataire, 1, LENGTH(config.prefixe)) = config.prefixe")
+            ->join('operateur', 'operateur.id = config.id_operateur AND operateur.autre_operateur = 1')
+            ->where('transactions.id_type_operation', $idTypeTransfert)
+            ->groupBy('operateur.id')
+            ->get()
+            ->getResultArray();
+
+        $montants = [];
+
+        foreach ($lignes as $ligne) {
+            $montantTransfere = (float) $ligne['montant_transfere'];
+            $commission = (float) $ligne['commission'];
+
+            $montants[] = [
+                'id_operateur'      => (int) $ligne['id_operateur'],
+                'nom'               => $ligne['nom_operateur'],
+                'montant_transfere' => $montantTransfere,
+                'commission'        => $commission,
+                'total'             => $montantTransfere + $commission,
+            ];
+        }
+
+        return $montants;
+    }
+
     private function normaliserNumero(string $numero): string
     {
         $numero = preg_replace('/\s+/', '', $numero);
