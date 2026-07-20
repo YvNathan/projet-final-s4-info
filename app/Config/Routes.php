@@ -9,3 +9,5 @@ $routes->post('login', 'AuthClientController::doLogin');
 $routes->get('logout', 'AuthClientController::logout');
 
 $routes->get('home', 'HomeController::index', ['filter' => 'auth']);
+
+$routes->get('operateur/situation', 'SituationController::index');

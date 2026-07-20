@@ -2,7 +2,7 @@
 - Création des Migrations                                           (Nathan)
 - Création des seeds de données de test                             (Nathan)
 
-### Gestion opérateur
+### Models - Gestion opérateur
 - Création du model OperateurModel
     - Fonction : getValidPrefix($id_operateur)
         - Récupérer les prefixes valides en utilisant join avec la table config
@@ -66,3 +66,46 @@
     - Modification des Migrations Clients et Config
     - Suppression du model OperateurModel
     - Simplification de la table config -> suppression du champ id_operateur
+
+### Controllers et Views
+
+- Création du Controller SituationController
+    - Route GET /operateur/situation
+    - Fonction : index()
+        - Récupérer le gain total : TransactionModel->getSituationGain()
+        - Récupérer la liste des clients avec leur solde : ClientModel->getSituationsClients()
+        - Afficher la vue operateur/situation
+
+- Création du Controller ConfigController
+    - Route GET /operateur/config
+    - Fonction : index()
+        - Lister les préfixes existants (ConfigModel)
+        - Afficher la vue operateur/config (tableau + bouton "Ajouter" -> modal Bootstrap)
+    - Route POST /operateur/config
+    - Fonction : store()
+        - Valider et ajouter un préfixe : ConfigModel->ajouterPrefixe($prefixe)
+        - Rediriger avec message de succès/erreur (flashdata)
+
+- Création du Controller FraisOperationController
+    - Route GET /operateur/frais
+    - Fonction : index()
+        - Lister les types d'opération et leurs tranches de frais (FraisOperationModel + TypeOperationModel)
+        - Afficher la vue operateur/frais (tableau par type + boutons "Ajouter"/"Modifier"/"Supprimer" -> modals Bootstrap)
+    - Route POST /operateur/frais
+    - Fonction : store()
+        - Valider et ajouter une tranche : FraisOperationModel->ajouterBareme(...)
+        - Rediriger avec message de succès/erreur (flashdata), capturer les exceptions (chevauchement)
+    - Route POST /operateur/frais/(:num)/update
+    - Fonction : update($id)
+        - Valider et modifier une tranche : FraisOperationModel->modifierBareme(...)
+        - Rediriger avec message de succès/erreur (flashdata), capturer les exceptions
+    - Route POST /operateur/frais/(:num)/delete
+    - Fonction : delete($id)
+        - Supprimer une tranche : FraisOperationModel->supprimerBareme($id)
+        - Rediriger avec message de succès/erreur (flashdata)
+
+- Views (app/Views/operateur/)
+    - layout Bootstrap partagé (navbar + flashdata success/error)
+    - situation.php : gain total + tableau des clients et soldes
+    - config.php : liste des préfixes existants + modal "Ajouter un préfixe"
+    - frais.php : tableau des tranches par type d'opération + modals "Ajouter"/"Modifier"/"Supprimer" une tranche
