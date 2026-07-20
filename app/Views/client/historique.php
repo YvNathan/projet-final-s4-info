@@ -113,11 +113,27 @@
                                                     Retrait
                                                 </span>
 
-                                            <?php else: ?>
+                                            <?php elseif ($transaction['type_operation'] == "transfert"): ?>
 
-                                                <span class="badge bg-primary">
-                                                    Transfert
-                                                </span>
+
+                                                <?php if ($transaction['sens'] == "envoye"): ?>
+
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-arrow-up-right"></i>
+                                                        Transfert envoyé
+                                                    </span>
+
+
+                                                <?php else: ?>
+
+
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-arrow-down-left"></i>
+                                                        Transfert reçu
+                                                    </span>
+
+
+                                                <?php endif; ?>
 
                                             <?php endif; ?>
 
@@ -125,7 +141,32 @@
 
 
                                         <td>
-                                            <?= number_format($transaction['montant'], 2, ',', ' ') ?> Ar
+
+                                            <?php if (
+                                                $transaction['type_operation'] == "transfert"
+                                                && $transaction['sens'] == "recu"
+                                            ): ?>
+
+                                                <span class="text-success">
+                                                    + <?= number_format($transaction['montant'], 2, ',', ' ') ?> Ar
+                                                </span>
+
+
+                                            <?php elseif (
+                                                $transaction['type_operation'] == "transfert"
+                                            ): ?>
+
+                                                <span class="text-danger">
+                                                    - <?= number_format($transaction['montant'], 2, ',', ' ') ?> Ar
+                                                </span>
+
+
+                                            <?php else: ?>
+
+                                                <?= number_format($transaction['montant'], 2, ',', ' ') ?> Ar
+
+                                            <?php endif; ?>
+
                                         </td>
 
 

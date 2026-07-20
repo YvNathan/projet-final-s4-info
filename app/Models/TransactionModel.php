@@ -124,14 +124,16 @@ class TransactionModel extends Model
 
             if ($this->db->table('client')
                 ->where('id', (int) $client['id'])
-                ->update(['solde' => $soldeClientApresOperation]) === false) {
+                ->update(['solde' => $soldeClientApresOperation]) === false
+            ) {
                 throw new \RuntimeException('Impossible de mettre à jour le solde du client.');
             }
 
             if ($destinataire !== null && $soldeDestinataireApresOperation !== null) {
                 if ($this->db->table('client')
                     ->where('id', (int) $destinataire['id'])
-                    ->update(['solde' => $soldeDestinataireApresOperation]) === false) {
+                    ->update(['solde' => $soldeDestinataireApresOperation]) === false
+                ) {
                     throw new \RuntimeException('Impossible de mettre à jour le solde du destinataire.');
                 }
             }
@@ -197,14 +199,32 @@ class TransactionModel extends Model
     {
         $numero = $this->normaliserNumero($numero);
 
-        return $this->select('transactions.*, type_operation.libelle AS type_operation')
-            ->join('type_operation', 'transactions.id_type_operation = type_operation.id')
-            ->join('client', 'transactions.id_client = client.id')
+        return $this->select("
+            transactions.*, 
+            type_operation.libelle AS type_operation,
+
+            CASE
+                WHEN transactions.numero_destinataire = '$numero'
+                THEN 'recu'
+
+                ELSE 'envoye'
+
+            END AS sens
+        ")
+            ->join(
+                'type_operation',
+                'transactions.id_type_operation = type_operation.id'
+            )
+            ->join(
+                'client',
+                'transactions.id_client = client.id'
+            )
+            ->groupStart()
             ->where('client.numero', $numero)
             ->orWhere('transactions.numero_destinataire', $numero)
+            ->groupEnd()
             ->orderBy('transactions.date_heure', 'DESC')
             ->findAll();
-
     }
 
     public function getSituationGain(): float
