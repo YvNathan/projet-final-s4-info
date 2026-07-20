@@ -229,13 +229,55 @@ class TransactionModel extends Model
             ->findAll();
     }
 
-    public function getSituationGain(): float
+    public function getSituationGains(?int $idTypeOperation = null): array
     {
-        $row = $this->selectSum('frais_applique', 'gain')
-            ->get()
-            ->getRowArray();
+        $builder = $this->select("
+                COALESCE(operateur_dest.id, operateur_soi.id) AS id_operateur,
+                COALESCE(operateur_dest.nom, operateur_soi.nom) AS nom_operateur,
+                SUM(transactions.frais_applique) AS gain
+            ")
+            ->join(
+                'config',
+                "SUBSTR(transactions.numero_destinataire, 1, LENGTH(config.prefixe)) = config.prefixe",
+                'left'
+            )
+            ->join('operateur operateur_dest', 'operateur_dest.id = config.id_operateur', 'left')
+            ->join('operateur operateur_soi', 'operateur_soi.autre_operateur = 0', 'left')
+            ->groupBy('COALESCE(operateur_dest.id, operateur_soi.id)');
 
-        return (float) ($row['gain'] ?? 0);
+        if ($idTypeOperation !== null) {
+            $builder->where('transactions.id_type_operation', $idTypeOperation);
+        }
+
+        $lignes = $builder->get()->getResultArray();
+
+        $operateurModel = new OperateurModel();
+        $idSoiMeme = (int) $operateurModel->getSoiMeme()['id'];
+
+        $soiMeme = 0.0;
+        $autresOperateurs = [];
+        $total = 0.0;
+
+        foreach ($lignes as $ligne) {
+            $gain = (float) $ligne['gain'];
+            $total += $gain;
+
+            if ((int) $ligne['id_operateur'] === $idSoiMeme) {
+                $soiMeme += $gain;
+            } else {
+                $autresOperateurs[] = [
+                    'id_operateur' => (int) $ligne['id_operateur'],
+                    'nom'          => $ligne['nom_operateur'],
+                    'gain'         => $gain,
+                ];
+            }
+        }
+
+        return [
+            'total'             => $total,
+            'soi_meme'          => $soiMeme,
+            'autres_operateurs' => $autresOperateurs,
+        ];
     }
 
     private function normaliserNumero(string $numero): string
