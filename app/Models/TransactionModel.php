@@ -201,8 +201,10 @@ class TransactionModel extends Model
             ->join('type_operation', 'transactions.id_type_operation = type_operation.id')
             ->join('client', 'transactions.id_client = client.id')
             ->where('client.numero', $numero)
+            ->orWhere('transactions.numero_destinataire', $numero)
             ->orderBy('transactions.date_heure', 'DESC')
             ->findAll();
+
     }
 
     public function getSituationGain(): float
