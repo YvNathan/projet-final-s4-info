@@ -29,9 +29,9 @@ class AuthClientController extends BaseController
                 session()->regenerate(true);
                 session()->setFlashdata('success', 'Connexion réussie.');
                 session()->set([
-                    'id' => $client['id'],
-                    'nom' => $client['nom'],
-                    'numero' => $client['numero'],
+                    'client_id' => $client['id'],
+                    'client_nom' => $client['nom'],
+                    'client_numero' => $client['numero'],
                     'isLoggedIn' => true,
                 ]);
                 return redirect()->to('/dashboard');
