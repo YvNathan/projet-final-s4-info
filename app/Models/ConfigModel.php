@@ -12,7 +12,7 @@ class ConfigModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['prefixe'];
+    protected $allowedFields    = ['prefixe', 'id_operateur'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -29,7 +29,9 @@ class ConfigModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'prefixe' => 'required|min_length[2]|max_length[10]|is_unique[config.prefixe,id,{id}]',
+        'id'           => 'permit_empty|is_natural_no_zero',
+        'prefixe'      => 'required|min_length[2]|max_length[10]|is_unique[config.prefixe,id,{id}]',
+        'id_operateur' => 'required|is_natural_no_zero|is_not_unique[operateur.id]',
     ];
     protected $validationMessages   = [
         'prefixe' => [
@@ -37,6 +39,11 @@ class ConfigModel extends Model
             'min_length' => 'Le préfixe doit contenir au moins 2 caractères.',
             'max_length' => 'Le préfixe ne doit pas dépasser 10 caractères.',
             'is_unique'  => 'Ce préfixe existe déjà.',
+        ],
+        'id_operateur' => [
+            'required'           => "L'opérateur est obligatoire.",
+            'is_natural_no_zero' => "L'opérateur est invalide.",
+            'is_not_unique'      => "L'opérateur indiqué n'existe pas.",
         ],
     ];
     protected $skipValidation       = false;
@@ -53,10 +60,47 @@ class ConfigModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function ajouterPrefixe(string $prefixe)
+    public function ajouterPrefixe(string $prefixe, int $idOperateur)
     {
         return $this->insert([
-            'prefixe' => $prefixe,
+            'prefixe'      => $prefixe,
+            'id_operateur' => $idOperateur,
         ]);
+    }
+
+    public function modifierPrefixe(int $id, string $prefixe, int $idOperateur): bool
+    {
+        $config = $this->find($id);
+
+        if ($config === null) {
+            throw new \RuntimeException("Ce préfixe n'existe pas.");
+        }
+
+        return (bool) $this->update($id, [
+            'id'           => $id,
+            'prefixe'      => $prefixe,
+            'id_operateur' => $idOperateur,
+        ]);
+    }
+
+    public function supprimerPrefixe(int $id): bool
+    {
+        if ($this->find($id) === null) {
+            throw new \RuntimeException("Ce préfixe n'existe pas.");
+        }
+
+        return $this->delete($id);
+    }
+
+    public function getOperateurByPrefixe(string $numero): ?array
+    {
+        $numeroEchappe = $this->db->escape($numero);
+
+        return $this->select('operateur.id, operateur.nom, operateur.autre_operateur, operateur.pct_commission')
+            ->join('operateur', 'operateur.id = config.id_operateur')
+            ->where("SUBSTR({$numeroEchappe}, 1, LENGTH(config.prefixe)) = config.prefixe", null, false)
+            ->orderBy('LENGTH(config.prefixe)', 'DESC')
+            ->get(1)
+            ->getRowArray();
     }
 }

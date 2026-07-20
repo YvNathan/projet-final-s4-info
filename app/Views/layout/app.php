@@ -60,6 +60,11 @@
                             <i class="bi bi-cash-stack"></i><span>Barèmes de frais</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="app-nav__link <?= $current === 'operateur/operateurs' ? 'active' : '' ?>" href="<?= base_url('operateur/operateurs') ?>">
+                            <i class="bi bi-diagram-3"></i><span>Opérateurs</span>
+                        </a>
+                    </li>
                 </ul>
             <?php endif; ?>
 
