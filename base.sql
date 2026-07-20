@@ -50,6 +50,7 @@ CREATE TABLE transactions (
     date_heure              TEXT NOT NULL DEFAULT (datetime('now')),
     montant                 REAL NOT NULL CHECK (montant > 0),
     frais_applique          REAL NOT NULL DEFAULT 0 CHECK (frais_applique >= 0),
+    commission              REAL NOT NULL DEFAULT 0 CHECK (commission >= 0),
     numero_destinataire     TEXT,
     FOREIGN KEY (id_client) REFERENCES client(id) ON DELETE RESTRICT,
     FOREIGN KEY (id_type_operation) REFERENCES type_operation(id) ON DELETE RESTRICT
