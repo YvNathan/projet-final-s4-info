@@ -9,11 +9,16 @@
     - Fonction doLogin() : 
         - validation du numero envoyer 
         - rediriger si invalide
+        - get Client, si inexsitant utiliser register
         - generation de session et stockage des info
         - redirection vers home
     - Fonction logout() :
         - destruction de session 
         - redirection vers login
+
+    - Fonction register() :
+        - verifier si le numero 
+
 - ajout des routes :
     - login (get) -> login()
     - login (post)-> doLogin()
@@ -28,3 +33,7 @@
 - creation de home :
     - vue home avec info session
     - route avec filter
+
+#### Operations
+- Voir solde :
+    - dans le homeController 

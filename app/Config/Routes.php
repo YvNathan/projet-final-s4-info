@@ -8,4 +8,4 @@ $routes->get('login', 'AuthClientController::login');
 $routes->post('login', 'AuthClientController::doLogin');
 $routes->get('logout', 'AuthClientController::logout');
 
-$routes->get('home', 'Home::index', ['filter' => 'auth']);
+$routes->get('home', 'HomeController::index', ['filter' => 'auth']);

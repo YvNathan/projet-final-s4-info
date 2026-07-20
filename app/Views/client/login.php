@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
 </head>
 
 <body>
@@ -13,11 +15,17 @@
         echo '<p style="color:red;">' . session()->getFlashdata('error') . '</p>';
     }
     ?>
-    <form action="<?= base_url('login') ?>" method="post">
-        <label for="numero">Numéro de téléphone:</label>
-        <input type="text" name="numero" id="numero" required>
-        <button type="submit">Se connecter</button>
-    </form>
+   <body>
+    <div class="container">
+        <form action="<?= base_url('login') ?>" method="post">
+            <div class="form-group">
+                <label for="numero">Numéro de téléphone:</label>
+                <input type="text" name="numero" id="numero" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
+    </div>
+</body>
 </body>
 
 </html>

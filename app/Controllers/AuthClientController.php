@@ -35,7 +35,7 @@ class AuthClientController extends BaseController
                     'client_numero' => $client['numero'],
                     'isLoggedIn' => true,
                 ]);
-                return redirect()->to('/dashboard');
+                return redirect()->to('/home');
             } else {
                 session()->setFlashdata('error', 'Numéro de téléphone introuvable.');
                 return redirect()->to('/login');
