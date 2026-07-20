@@ -1,18 +1,9 @@
 PRAGMA foreign_keys = ON;
 
-CREATE TABLE operateur (
-    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom     TEXT NOT NULL UNIQUE
-);
-
 CREATE TABLE config (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_operateur    INTEGER NOT NULL,
-    prefixe         TEXT NOT NULL UNIQUE,
-    FOREIGN KEY (id_operateur) REFERENCES operateur(id) ON DELETE CASCADE
+    prefixe         TEXT NOT NULL UNIQUE
 );
-
-CREATE INDEX idx_config_operateur ON config(id_operateur);
 
 CREATE TABLE type_operation (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,14 +25,11 @@ CREATE INDEX idx_frais_type_operation ON frais_operation(id_type_operation);
 
 CREATE TABLE client (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_operateur    INTEGER NOT NULL,
     nom             TEXT,
     numero          TEXT NOT NULL UNIQUE,
-    solde           REAL NOT NULL DEFAULT 0 CHECK (solde >= 0),
-    FOREIGN KEY (id_operateur) REFERENCES operateur(id) ON DELETE RESTRICT
+    solde           REAL NOT NULL DEFAULT 0 CHECK (solde >= 0)
 );
 
-CREATE INDEX idx_client_operateur ON client(id_operateur);
 CREATE INDEX idx_client_numero ON client(numero);
 
 CREATE TABLE transactions (

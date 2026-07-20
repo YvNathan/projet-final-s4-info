@@ -46,4 +46,9 @@ class ClientModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getSituationsClients(): array
+    {
+        return $this->select('id, nom, numero, solde')->findAll();
+    }
 }

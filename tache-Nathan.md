@@ -39,6 +39,7 @@
 
 - Création du model TransactionModel
     - Fonction : createTransaction($idTypeOperation, $numero, $dateHeure, $montant, $numeroDest)
+        - Normaliser le numéro
         - Vérifier que le numero du client est enregistré et récupérer son id
         - Valider le montant
         - Récupérer les frais relatifs à l'opération : FraisOperationModel->getFrais
@@ -59,3 +60,9 @@
     - Fonction : createTransfert($numero, $dateHeure, $montant, $numeroDest)
         - Récupérer l'id de type_opration pour transfert
         - appeler createTransaction($idTypeOperation, $numero, $dateHeure, $montant, $numeroDest)
+
+- Erreur de conception : Suppression de la table operateur - C'est une appli de gestion d'UN operateur 
+    - Suppression de la Migration pour Operateur
+    - Modification des Migrations Clients et Config
+    - Suppression du model OperateurModel
+    - Simplification de la table config -> suppression du champ id_operateur

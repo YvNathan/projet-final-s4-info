@@ -88,11 +88,13 @@ class TransactionModel extends Model
             }
         }
 
-        $soldeClientApresOperation = match ($libelleOperation) {
-            'depot' => (float) $client['solde'] + $montant,
-            'retrait', 'transfert' => (float) $client['solde'] - $montant - $frais,
-            default => throw new \RuntimeException("Le type d'opération '{$libelleOperation}' n'est pas pris en charge."),
-        };
+        if ($libelleOperation === 'depot') {
+            $soldeClientApresOperation = (float) $client['solde'] + $montant;
+        } elseif ($libelleOperation === 'retrait' || $libelleOperation === 'transfert') {
+            $soldeClientApresOperation = (float) $client['solde'] - $montant - $frais;
+        } else {
+            throw new \RuntimeException("Le type d'opération '{$libelleOperation}' n'est pas pris en charge.");
+        }
 
         if ($soldeClientApresOperation < 0) {
             throw new \RuntimeException('Le solde du client est insuffisant pour effectuer cette opération.');
@@ -189,6 +191,15 @@ class TransactionModel extends Model
             $montant,
             $numeroDest,
         );
+    }
+
+    public function getSituationGain(): float
+    {
+        $row = $this->selectSum('frais_applique', 'gain')
+            ->get()
+            ->getRowArray();
+
+        return (float) ($row['gain'] ?? 0);
     }
 
     private function normaliserNumero(string $numero): string

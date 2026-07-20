@@ -13,10 +13,6 @@ class CreateClientTable extends Migration
                 'type'           => 'INTEGER',
                 'auto_increment' => true,
             ],
-            'id_operateur' => [
-                'type' => 'INTEGER',
-                'null' => false,
-            ],
             'nom' => [
                 'type' => 'TEXT',
                 'null' => true,
@@ -34,7 +30,6 @@ class CreateClientTable extends Migration
 
         $this->forge->addPrimaryKey('id');
         $this->forge->addUniqueKey('numero');
-        $this->forge->addForeignKey('id_operateur', 'operateur', 'id', 'RESTRICT', 'RESTRICT');
         $this->forge->createTable('client', true);
     }
 
