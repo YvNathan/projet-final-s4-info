@@ -17,10 +17,15 @@ class CreateConfigTable extends Migration
                 'type'       => 'TEXT',
                 'null'       => false,
             ],
+            'id_operateur' => [
+                'type' => 'INTEGER',
+                'null' => false,
+            ],
         ]);
 
         $this->forge->addPrimaryKey('id');
         $this->forge->addUniqueKey('prefixe');
+        $this->forge->addForeignKey('id_operateur', 'operateur', 'id', '', 'CASCADE');
         $this->forge->createTable('config', true);
     }
 

@@ -1,8 +1,19 @@
 PRAGMA foreign_keys = ON;
 
+CREATE TABLE operateur (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom                 TEXT NOT NULL UNIQUE,
+    autre_operateur     INTEGER NOT NULL DEFAULT 0,
+    pct_commission      REAL NOT NULL DEFAULT 0,
+    CHECK (autre_operateur IN (0, 1)),
+    CHECK (pct_commission >= 0 AND pct_commission <= 100)
+);
+
 CREATE TABLE config (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    prefixe         TEXT NOT NULL UNIQUE
+    prefixe         TEXT NOT NULL UNIQUE,
+    id_operateur    INTEGER NOT NULL,
+    FOREIGN KEY (id_operateur) REFERENCES operateur(id) ON DELETE CASCADE
 );
 
 CREATE TABLE type_operation (
@@ -51,3 +62,5 @@ CREATE INDEX idx_transactions_date ON transactions(date_heure);
 INSERT INTO type_operation (libelle) VALUES ('depot');
 INSERT INTO type_operation (libelle) VALUES ('retrait');
 INSERT INTO type_operation (libelle) VALUES ('transfert');
+
+INSERT INTO operateur (nom, autre_operateur, pct_commission) VALUES ('Soi-même', 0, 0);
