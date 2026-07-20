@@ -34,7 +34,7 @@ class ClientController extends BaseController
         return redirect()->to('/home')
             ->with('success', 'Dépôt effectué avec succès.');
     } catch (\Throwable $e) {
-        return redirect()->back()
+        return redirect()->to('/home')
             ->with('error', $e->getMessage());
     }
 }
@@ -55,7 +55,7 @@ public function doRetrait()
         return redirect()->to('/home')
             ->with('success', 'Retrait effectué avec succès.');
     } catch (\Throwable $e) {
-        return redirect()->back()
+        return redirect()->to('/home')
             ->with('error', $e->getMessage());
     }
 }
@@ -78,7 +78,7 @@ public function doTransfert()
         return redirect()->to('/home')
             ->with('success', 'Transfert effectué avec succès.');
     } catch (\Throwable $e) {
-        return redirect()->back()
+        return redirect()->to('/home')
             ->with('error', $e->getMessage());
     }
 }
