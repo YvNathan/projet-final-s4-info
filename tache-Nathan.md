@@ -109,3 +109,8 @@
     - situation.php : gain total + tableau des clients et soldes
     - config.php : liste des préfixes existants + modal "Ajouter un préfixe"
     - frais.php : tableau des tranches par type d'opération + modals "Ajouter"/"Modifier"/"Supprimer" une tranche
+
+- Ajout de pagination sur la page situation des comptes clients
+    - Modification de ClientModel -> ajout paginate dans getSituationsClients()
+    - Ajout du pager dans SituationController
+    - Ajout des blocs de navigation de page dans la view

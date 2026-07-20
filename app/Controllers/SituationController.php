@@ -12,10 +12,13 @@ class SituationController extends BaseController
         $transactionModel = new TransactionModel();
         $clientModel = new ClientModel();
 
+        $clients = $clientModel->getSituationsClients();
+
         return view('operateur/situation', [
             'titre'     => 'Situation',
             'gainTotal' => $transactionModel->getSituationGain(),
-            'clients'   => $clientModel->getSituationsClients(),
+            'clients'   => $clients,
+            'pager'     => $clientModel->pager,
         ]);
     }
 }

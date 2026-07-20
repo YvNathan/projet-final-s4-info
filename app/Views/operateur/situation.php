@@ -39,4 +39,24 @@
     </tbody>
 </table>
 
+<?php if ($pager->getPageCount() > 1) : ?>
+    <?php $previousPageURI = $pager->getPreviousPageURI(); ?>
+    <?php $nextPageURI = $pager->getNextPageURI(); ?>
+    <nav aria-label="Pagination des comptes clients">
+        <ul class="pagination">
+            <li class="page-item <?= $previousPageURI !== null ? '' : 'disabled' ?>">
+                <a class="page-link" href="<?= $previousPageURI ?? '#' ?>">Précédent</a>
+            </li>
+            <?php for ($page = 1; $page <= $pager->getPageCount(); $page++) : ?>
+                <li class="page-item <?= $page === $pager->getCurrentPage() ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $pager->getPageURI($page) ?>"><?= $page ?></a>
+                </li>
+            <?php endfor; ?>
+            <li class="page-item <?= $nextPageURI !== null ? '' : 'disabled' ?>">
+                <a class="page-link" href="<?= $nextPageURI ?? '#' ?>">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+<?php endif; ?>
+
 <?= $this->endSection() ?>
