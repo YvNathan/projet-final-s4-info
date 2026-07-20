@@ -19,6 +19,7 @@
                         <th>Type</th>
                         <th class="text-end">Montant</th>
                         <th class="text-end">Frais</th>
+                        <th class="text-end">Commission</th>
                         <th>Destinataire</th>
                     </tr>
                 </thead>
@@ -49,6 +50,7 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-end"><?= number_format($transaction['frais_applique'], 2, ',', ' ') ?> Ar</td>
+                            <td class="text-end"><?= number_format($transaction['commission'], 2, ',', ' ') ?> Ar</td>
                             <td class="font-mono">
                                 <?= $transaction['numero_destinataire'] ? esc($transaction['numero_destinataire']) : '—' ?>
                             </td>
