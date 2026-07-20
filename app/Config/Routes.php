@@ -17,3 +17,12 @@ $routes->get('home', 'HomeController::index', ['filter' => 'auth']);
 $routes->get('historique', 'ClientController::historique');
 
 $routes->get('operateur/situation', 'SituationController::index');
+$routes->get('operateur/situation', 'SituationController::index');
+
+$routes->get('operateur/config', 'ConfigController::index');
+$routes->post('operateur/config', 'ConfigController::store');
+
+$routes->get('operateur/frais', 'FraisOperationController::index');
+$routes->post('operateur/frais', 'FraisOperationController::store');
+$routes->post('operateur/frais/(:num)/update', 'FraisOperationController::update/$1');
+$routes->post('operateur/frais/(:num)/delete', 'FraisOperationController::delete/$1');
