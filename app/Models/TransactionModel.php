@@ -193,6 +193,18 @@ class TransactionModel extends Model
         );
     }
 
+    public function getHistoriqueTransactions(string $numero)
+    {
+        $numero = $this->normaliserNumero($numero);
+
+        return $this->select('transactions.*, type_operation.libelle AS type_operation')
+            ->join('type_operation', 'transactions.id_type_operation = type_operation.id')
+            ->join('client', 'transactions.id_client = client.id')
+            ->where('client.numero', $numero)
+            ->orderBy('transactions.date_heure', 'DESC')
+            ->findAll();
+    }
+
     public function getSituationGain(): float
     {
         $row = $this->selectSum('frais_applique', 'gain')
