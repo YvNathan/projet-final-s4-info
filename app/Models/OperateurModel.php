@@ -53,9 +53,6 @@ class OperateurModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    /**
-     * Récupère les préfixes valides d'un opérateur (jointure avec config).
-     */
     public function getValidPrefix(int $idOperateur): array
     {
         return $this->select('config.prefixe')
@@ -64,9 +61,6 @@ class OperateurModel extends Model
             ->findAll();
     }
 
-    /**
-     * Somme des frais perçus par l'opérateur (retrait et transfert confondus).
-     */
     public function getSituationGain(int $idOperateur): float
     {
         $row = $this->db->table('transactions')
@@ -79,9 +73,6 @@ class OperateurModel extends Model
         return (float) ($row['gain'] ?? 0);
     }
 
-    /**
-     * Liste des clients de l'opérateur avec leur solde actuel.
-     */
     public function getSituationsClients(int $idOperateur): array
     {
         return $this->db->table('client')
