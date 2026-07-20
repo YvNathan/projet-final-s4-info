@@ -13,6 +13,7 @@ class AuthClientController extends BaseController
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/home');
         }
+
         return view('client/login');
     }
 
@@ -31,8 +32,6 @@ class AuthClientController extends BaseController
         }
 
         $prefix = $match[1];
-
-
 
         if (str_starts_with($numero, '+261')) {
             $numero = substr($numero, 4);
@@ -62,6 +61,7 @@ class AuthClientController extends BaseController
         session()->regenerate(true);
 
         session()->set([
+            'espace' => 'client',
             'client_id' => $client['id'],
             'client_nom' => $client['nom'],
             'client_numero' => $client['numero'],

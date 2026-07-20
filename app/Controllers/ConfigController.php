@@ -12,6 +12,7 @@ class ConfigController extends BaseController
 
         return view('operateur/config', [
             'titre'    => 'Préfixes',
+            'espace'   => 'operateur',
             'prefixes' => $configModel->orderBy('prefixe', 'ASC')->findAll(),
         ]);
     }

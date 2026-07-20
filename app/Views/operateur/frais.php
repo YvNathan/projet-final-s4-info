@@ -1,3 +1,10 @@
+<?php
+$baremes = $baremes ?? [];
+$pager = $pager ?? null;
+$typesOperation = $typesOperation ?? [];
+$libellesById = $libellesById ?? [];
+$idTypeOperationFiltre = $idTypeOperationFiltre ?? null;
+?>
 <?= $this->extend('layout/app') ?>
 
 <?= $this->section('contenu') ?>
@@ -74,7 +81,7 @@
         </table>
     </div>
 
-    <?php if ($pager->getPageCount() > 1) : ?>
+    <?php if ($pager !== null && $pager->getPageCount() > 1) : ?>
         <?php $previousPageURI = $pager->getPreviousPageURI(); ?>
         <?php $nextPageURI = $pager->getNextPageURI(); ?>
         <nav aria-label="Pagination des barèmes de frais" class="mt-2">

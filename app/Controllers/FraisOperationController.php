@@ -25,6 +25,7 @@ class FraisOperationController extends BaseController
 
         return view('operateur/frais', [
             'titre'                 => 'Barèmes de frais',
+            'espace'                => 'operateur',
             'baremes'               => $baremes,
             'pager'                 => $fraisModel->pager,
             'typesOperation'        => $typesOperation,

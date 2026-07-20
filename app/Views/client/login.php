@@ -20,6 +20,12 @@
     </div>
 </form>
 
+<div class="d-grid mt-3">
+    <a href="<?= base_url('operateur/situation') ?>" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-shield-lock me-1"></i>Espace opérateur
+    </a>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

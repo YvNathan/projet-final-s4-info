@@ -1,3 +1,8 @@
+<?php
+$gainTotal = $gainTotal ?? 0;
+$clients = $clients ?? [];
+$pager = $pager ?? null;
+?>
 <?= $this->extend('layout/app') ?>
 
 <?= $this->section('contenu') ?>
@@ -43,7 +48,7 @@
         </table>
     </div>
 
-    <?php if ($pager->getPageCount() > 1) : ?>
+    <?php if ($pager !== null && $pager->getPageCount() > 1) : ?>
         <?php $previousPageURI = $pager->getPreviousPageURI(); ?>
         <?php $nextPageURI = $pager->getNextPageURI(); ?>
         <nav aria-label="Pagination des comptes clients" class="mt-2">

@@ -16,6 +16,7 @@ class SituationController extends BaseController
 
         return view('operateur/situation', [
             'titre'     => 'Situation',
+            'espace'    => 'operateur',
             'gainTotal' => $transactionModel->getSituationGain(),
             'clients'   => $clients,
             'pager'     => $clientModel->pager,

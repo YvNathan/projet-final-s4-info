@@ -7,13 +7,14 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'AuthClientController::login');
 $routes->get('login', 'AuthClientController::login');
 $routes->post('login', 'AuthClientController::doLogin');
+$routes->get('operateur/login', 'SituationController::index');
 $routes->get('logout', 'AuthClientController::logout');
 
-$routes->get('home', 'ClientController::index', ['filter' => 'auth']);
-$routes->post('depot', 'ClientController::doDepot');
-$routes->post('retrait', 'ClientController::doRetrait');
-$routes->post('transfert', 'ClientController::doTransfert');
-$routes->get('historique', 'ClientController::historique');
+$routes->get('home', 'ClientController::index', ['filter' => 'auth:client']);
+$routes->post('depot', 'ClientController::doDepot', ['filter' => 'auth:client']);
+$routes->post('retrait', 'ClientController::doRetrait', ['filter' => 'auth:client']);
+$routes->post('transfert', 'ClientController::doTransfert', ['filter' => 'auth:client']);
+$routes->get('historique', 'ClientController::historique', ['filter' => 'auth:client']);
 
 $routes->get('operateur/situation', 'SituationController::index');
 

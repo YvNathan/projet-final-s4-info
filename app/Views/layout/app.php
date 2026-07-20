@@ -28,38 +28,40 @@
                 <span class="brand-text">Porte mon <span class="accent">« I »</span></span>
             </div>
 
-            <div class="app-sidebar__section">Espace client</div>
-            <ul class="app-nav">
-                <li>
-                    <a class="app-nav__link <?= $current === 'home' ? 'active' : '' ?>" href="<?= base_url('home') ?>">
-                        <i class="bi bi-house-door"></i><span>Mon compte</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="app-nav__link <?= $current === 'historique' ? 'active' : '' ?>" href="<?= base_url('historique') ?>">
-                        <i class="bi bi-clock-history"></i><span>Historique</span>
-                    </a>
-                </li>
-            </ul>
-
-            <div class="app-sidebar__section">Espace opérateur</div>
-            <ul class="app-nav">
-                <li>
-                    <a class="app-nav__link <?= $current === 'operateur/situation' ? 'active' : '' ?>" href="<?= base_url('operateur/situation') ?>">
-                        <i class="bi bi-graph-up"></i><span>Situation</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="app-nav__link <?= $current === 'operateur/config' ? 'active' : '' ?>" href="<?= base_url('operateur/config') ?>">
-                        <i class="bi bi-hash"></i><span>Préfixes</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="app-nav__link <?= $current === 'operateur/frais' ? 'active' : '' ?>" href="<?= base_url('operateur/frais') ?>">
-                        <i class="bi bi-cash-stack"></i><span>Barèmes de frais</span>
-                    </a>
-                </li>
-            </ul>
+            <?php if ($espace === 'client') : ?>
+                <div class="app-sidebar__section">Espace client</div>
+                <ul class="app-nav">
+                    <li>
+                        <a class="app-nav__link <?= $current === 'home' ? 'active' : '' ?>" href="<?= base_url('home') ?>">
+                            <i class="bi bi-house-door"></i><span>Mon compte</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="app-nav__link <?= $current === 'historique' ? 'active' : '' ?>" href="<?= base_url('historique') ?>">
+                            <i class="bi bi-clock-history"></i><span>Historique</span>
+                        </a>
+                    </li>
+                </ul>
+            <?php elseif ($espace === 'operateur') : ?>
+                <div class="app-sidebar__section">Espace opérateur</div>
+                <ul class="app-nav">
+                    <li>
+                        <a class="app-nav__link <?= $current === 'operateur/situation' ? 'active' : '' ?>" href="<?= base_url('operateur/situation') ?>">
+                            <i class="bi bi-graph-up"></i><span>Situation</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="app-nav__link <?= $current === 'operateur/config' ? 'active' : '' ?>" href="<?= base_url('operateur/config') ?>">
+                            <i class="bi bi-hash"></i><span>Préfixes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="app-nav__link <?= $current === 'operateur/frais' ? 'active' : '' ?>" href="<?= base_url('operateur/frais') ?>">
+                            <i class="bi bi-cash-stack"></i><span>Barèmes de frais</span>
+                        </a>
+                    </li>
+                </ul>
+            <?php endif; ?>
 
             <div class="app-sidebar__footer">
                 <a class="app-nav__link" href="<?= base_url('logout') ?>">
