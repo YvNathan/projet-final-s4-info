@@ -70,7 +70,7 @@ class TransactionModel extends Model
             throw new \RuntimeException("Le numéro du client n'a pas encore de compte.");
         }
 
-        $frais = $fraisModel->getFrais($idTypeOperation, $montant);
+        $frais = $fraisModel->getFrais($idTypeOperation, $montant, $numeroDest);
 
         if ($frais === null) {
             throw new \RuntimeException("Aucun barème de frais ne correspond à ce montant.");

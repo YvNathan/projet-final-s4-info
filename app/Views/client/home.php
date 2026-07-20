@@ -124,6 +124,7 @@
                         <input type="number" class="form-control" id="transfert_montant" name="montant" min="1" required>
                         <div id="transfertPreview" class="alert alert-light border mt-3 p-2 mb-0" style="display:none;">
                             <div class="d-flex justify-content-between small"><span>Frais</span><strong id="transfertFrais">0 Ar</strong></div>
+                            <div class="d-flex justify-content-between small mt-1"><span>Commission</span><strong id="transfertCommission">0 Ar</strong></div>
                             <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="transfertTotal">0 Ar</strong></div>
                         </div>
                     </div>
@@ -164,11 +165,12 @@
         }).format(amount) + ' Ar';
     }
 
-    function updatePreview(typeOperation, inputId, previewId, fraisId, totalId) {
+    function updatePreview(typeOperation, inputId, previewId, fraisId, totalId, commissionId) {
         var input = document.getElementById(inputId);
         var preview = document.getElementById(previewId);
         var fraisElement = document.getElementById(fraisId);
         var totalElement = document.getElementById(totalId);
+        var commissionElement = commissionId ? document.getElementById(commissionId) : null;
 
         if (!input || !preview || !fraisElement || !totalElement) {
             return;
@@ -183,6 +185,13 @@
 
         var endpoint = '<?= base_url('api/frais/get') ?>?montant=' + encodeURIComponent(montant) + '&type_operation=' + encodeURIComponent(typeOperation);
 
+        if (typeOperation === 'transfert') {
+            var numeroDest = document.getElementById('transfert_numero');
+            if (numeroDest) {
+                endpoint += '&numero_destinataire=' + encodeURIComponent(numeroDest.value);
+            }
+        }
+
         fetch(endpoint, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -194,14 +203,21 @@
             })
             .then(function (data) {
                 var frais = Number(data && data.frais !== undefined ? data.frais : 0);
-                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + frais);
+                var commission = Number(data && data.commission !== undefined ? data.commission : 0);
+                var total = Number(data && data.montant_total !== undefined ? data.montant_total : Number(montant) + frais + commission);
 
                 fraisElement.textContent = formatAr(frais);
+                if (commissionElement) {
+                    commissionElement.textContent = formatAr(commission);
+                }
                 totalElement.textContent = formatAr(total);
                 preview.style.display = 'block';
             })
             .catch(function () {
                 fraisElement.textContent = formatAr(0);
+                if (commissionElement) {
+                    commissionElement.textContent = formatAr(0);
+                }
                 totalElement.textContent = formatAr(Number(montant) || 0);
                 preview.style.display = 'block';
             });
@@ -220,10 +236,20 @@
                 } else if (inputId === 'retrait_montant') {
                     updatePreview('retrait', 'retrait_montant', 'retraitPreview', 'retraitFrais', 'retraitTotal');
                 } else if (inputId === 'transfert_montant') {
-                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal');
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission');
                 }
             });
         });
+
+        var transfertNumero = document.getElementById('transfert_numero');
+        if (transfertNumero) {
+            transfertNumero.addEventListener('input', function () {
+                var montantInput = document.getElementById('transfert_montant');
+                if (montantInput && montantInput.value.trim()) {
+                    updatePreview('transfert', 'transfert_montant', 'transfertPreview', 'transfertFrais', 'transfertTotal', 'transfertCommission');
+                }
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>
