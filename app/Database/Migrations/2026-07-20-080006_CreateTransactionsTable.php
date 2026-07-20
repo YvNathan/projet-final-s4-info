@@ -35,6 +35,11 @@ class CreateTransactionsTable extends Migration
                 'null'    => false,
                 'default' => 0,
             ],
+            'commission' => [
+                'type'    => 'REAL CHECK (commission >= 0)',
+                'null'    => false,
+                'default' => 0,
+            ],
             'numero_destinataire' => [
                 'type' => 'TEXT',
                 'null' => true,

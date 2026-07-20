@@ -18,6 +18,7 @@ class TransactionModel extends Model
         'date_heure',
         'montant',
         'frais_applique',
+        'commission',
         'numero_destinataire',
     ];
 
