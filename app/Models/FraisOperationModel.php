@@ -70,9 +70,15 @@ class FraisOperationModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getAll(int $nbPage = 10): array
+    public function getAll(int $nbPage = 10, ?int $idTypeOperation = null): array
     {
-        return $this->select('id, id_type_operation, borne_min, borne_max, frais')->paginate($nbPage);
+        $builder = $this->select('id, id_type_operation, borne_min, borne_max, frais');
+
+        if ($idTypeOperation !== null) {
+            $builder = $builder->where('id_type_operation', $idTypeOperation);
+        }
+
+        return $builder->paginate($nbPage);
     }
 
     public function getFrais(int $idTypeOperation, float $montant): ?float

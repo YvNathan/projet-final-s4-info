@@ -9,6 +9,19 @@
     </button>
 </div>
 
+<form action="<?= base_url('operateur/frais') ?>" method="get" class="form-inline mb-3">
+    <label for="filtre_type" class="mr-2">Type d'opération</label>
+    <select name="type" id="filtre_type" class="form-control mr-2" onchange="this.form.submit()">
+        <option value="">Tous</option>
+        <?php foreach ($typesOperation as $type) : ?>
+            <option value="<?= esc($type['id']) ?>" <?= $idTypeOperationFiltre === (int) $type['id'] ? 'selected' : '' ?>>
+                <?= esc($type['libelle']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <noscript><button type="submit" class="btn btn-secondary">Filtrer</button></noscript>
+</form>
+
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">
         <tr>

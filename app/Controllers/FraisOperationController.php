@@ -12,16 +12,24 @@ class FraisOperationController extends BaseController
         $fraisModel = new FraisOperationModel();
         $typeOperationModel = new TypeOperationModel();
 
-        $baremes = $fraisModel->getAll();
+        $idTypeOperationFiltre = $this->request->getGet('type');
+        $idTypeOperationFiltre = ($idTypeOperationFiltre !== null && $idTypeOperationFiltre !== '')
+            ? (int) $idTypeOperationFiltre
+            : null;
+
+        $baremes = $fraisModel->getAll(10, $idTypeOperationFiltre);
+        $fraisModel->pager->only(['type']);
+
         $typesOperation = $typeOperationModel->findAll();
         $libellesById = array_column($typesOperation, 'libelle', 'id');
 
         return view('operateur/frais', [
-            'titre'          => 'Barèmes de frais',
-            'baremes'        => $baremes,
-            'pager'          => $fraisModel->pager,
-            'typesOperation' => $typesOperation,
-            'libellesById'   => $libellesById,
+            'titre'                 => 'Barèmes de frais',
+            'baremes'               => $baremes,
+            'pager'                 => $fraisModel->pager,
+            'typesOperation'        => $typesOperation,
+            'libellesById'          => $libellesById,
+            'idTypeOperationFiltre' => $idTypeOperationFiltre,
         ]);
     }
 
