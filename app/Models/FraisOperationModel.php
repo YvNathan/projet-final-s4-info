@@ -113,7 +113,6 @@ class FraisOperationModel extends Model
 
         $fraisRetrait = 0.0;
         $commission = 0.0;
-        $promotion = 0.0;
 
         if ($this->estAutreOperateur($numeroDest ?? '')) {
             $commission = $this->getCommission($montant, $numeroDest);
@@ -130,7 +129,7 @@ class FraisOperationModel extends Model
             'frais_transfert' => $fraisTransfert,
             'frais_retrait' => $fraisRetrait,
             'commission' => $commission,
-            'montant_total' => $montant + $fraisTransfert - $promotion + $fraisRetrait + $commission,
+            'montant_total' => $montant + $fraisTransfert + $fraisRetrait + $commission,
         ];
     }
 
