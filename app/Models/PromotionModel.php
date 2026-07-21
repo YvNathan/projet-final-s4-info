@@ -4,19 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ClientModel extends Model
+class PromotionModel extends Model
 {
-    protected $table            = 'client';
+    protected $table            = 'promotion';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'nom',
-        'numero',
-        'pct_epargne',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -32,8 +28,16 @@ class ClientModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules      = [
+        'valeur'      => 'required|numeric|greater_than_equal_to[0]',
+    ];
+    protected $validationMessages   = [
+        'valeur' => [
+            'required'              => 'La valeur de la promotion est obligatoire.',
+            'numeric'               => 'La promotion doit être un nombre.',
+            'greater_than_equal_to' => 'La promotion doit être positif ou nul.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
@@ -48,22 +52,8 @@ class ClientModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getSituationsClients(int $perPage = 10): array
-    {
-        return $this->select('id, nom, numero, solde',)->paginate($perPage);
-    }
-
-    public function modifierClientEpargne(int $id, float $value): bool
-    {
-        $client = $this->find($id);
-
-        if ($client === null) {
-            throw new \RuntimeException("Ce client n'existe pas.");
-        }
-
-        return (bool) $this->update($id, [
-            'id'           => $id,
-            'pct_epargne'  => $value
-        ]);
+    public function getPromotion(){
+        return $this->select('valeur')
+                    ->first()['valeur'];
     }
 }

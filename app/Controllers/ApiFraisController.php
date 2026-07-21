@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\FraisOperationModel;
+use App\Models\PromotionModel;
 use App\Models\TypeOperationModel;
 
 class ApiFraisController extends BaseController

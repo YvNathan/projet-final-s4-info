@@ -26,6 +26,16 @@ class CreateClientTable extends Migration
                 'null'    => false,
                 'default' => 0,
             ],
+            'solde_epargne' => [
+                'type'    => 'REAL CHECK (solde_epargne >= 0)',
+                'null'    => false,
+                'default' => 0,
+            ],
+            'pct_epargne' => [
+                'type'    => 'REAL CHECK (pct_epargne >= 0)',
+                'null'    => false,
+                'default' => 0,
+            ]
         ]);
 
         $this->forge->addPrimaryKey('id');

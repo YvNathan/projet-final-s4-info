@@ -20,6 +20,27 @@ class ClientController extends BaseController
         ]);
     }
 
+    public function modifEpargne()
+    {
+        $clientModel = new ClientModel();
+        $valeur = (float)$this->request->getPost('valeur');
+
+        try {
+            if ($clientModel->modifierClientEpargne(session()->get('client_id'), $valeur ) === false) {
+                session()->setFlashdata('error', implode(' ', $clientModel->errors()));
+
+                return redirect()->to('home');
+            }
+        } catch (\RuntimeException $e) {
+            session()->setFlashdata('error', $e->getMessage());
+
+            return redirect()->to('home');
+        }
+
+        session()->setFlashdata('success', 'Epargne modifié avec succès.');
+
+        return redirect()->to('home');
+    }
     public function doDepot()
     {
         $montant = (float)$this->request->getPost('montant');

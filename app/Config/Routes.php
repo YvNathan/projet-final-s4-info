@@ -17,6 +17,10 @@ $routes->post('transfert', 'ClientController::doTransfert', ['filter' => 'auth:c
 $routes->post('transfert/multiple', 'ClientController::doTransfertMultiple', ['filter' => 'auth:client']);
 $routes->get('historique', 'ClientController::historique', ['filter' => 'auth:client']);
 
+$routes->post('modifEpargne', 'ClientController::modifEpargne', ['filter' => 'auth:client']);
+
+
+
 $routes->get('operateur/situation', 'SituationController::index');
 
 $routes->get('operateur/config', 'ConfigController::index');

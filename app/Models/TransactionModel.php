@@ -64,6 +64,9 @@ class TransactionModel extends Model
         $clientModel = new ClientModel();
         $fraisModel = new FraisOperationModel();
         $typeOperationModel = new TypeOperationModel();
+        $promotionModel = new PromotionModel();
+
+        $promotionValue = $promotionModel->getPromotion();
 
         $client = $clientModel->where('numero', $numero)->first();
 
@@ -72,6 +75,7 @@ class TransactionModel extends Model
         }
 
         $frais = $fraisModel->getFrais($idTypeOperation, $montant, $numeroDest);
+
         $commission = 0.0;
         $libelleOperation = $typeOperationModel->getLibelleById($idTypeOperation);
 
@@ -88,6 +92,10 @@ class TransactionModel extends Model
         if ($libelleOperation === 'transfert' && $numeroDest !== null) {
             $estAutreOperateur = $fraisModel->estAutreOperateur($numeroDest);
             $destinataire = $clientModel->where('numero', $numeroDest)->first();
+
+            if (!$estAutreOperateur){
+                $frais = $frais * (1 - ($promotionValue / 100));
+            }
 
             if (!$estAutreOperateur && $destinataire === null) {
                 throw new \RuntimeException("Le numéro du destinataire n'a pas encore de compte.");
@@ -107,9 +115,16 @@ class TransactionModel extends Model
         }
 
         $soldeDestinataireApresOperation = null;
+        $soldeEpargneDestinataireApresOperation = null;
+
 
         if ($destinataire !== null) {
-            $soldeDestinataireApresOperation = (float) $destinataire['solde'] + $montant;
+            $destE = $destinataire['pct_epargne'];
+
+            $montantEpargne = $montant * ($destE /100);
+            $montantSolde = $montant - $montantEpargne;
+            $soldeDestinataireApresOperation = (float) $destinataire['solde'] + $montantSolde;
+            $soldeEpargneDestinataireApresOperation = (float) $destinataire['solde_epargne'] + $montantEpargne;
         }
 
         $this->db->transBegin();
@@ -139,7 +154,7 @@ class TransactionModel extends Model
             if ($destinataire !== null && $soldeDestinataireApresOperation !== null) {
                 if ($this->db->table('client')
                     ->where('id', (int) $destinataire['id'])
-                    ->update(['solde' => $soldeDestinataireApresOperation]) === false
+                    ->update(['solde' => $soldeDestinataireApresOperation , 'solde_epargne' => $soldeEpargneDestinataireApresOperation]) === false
                 ) {
                     throw new \RuntimeException('Impossible de mettre à jour le solde du destinataire.');
                 }

@@ -103,11 +103,17 @@ class FraisOperationModel extends Model
     public function getDetailsTransfert(float $montant, ?string $numeroDest = null, bool $inclureFraisRetrait = false): array
     {
         $typeOperationModel = new TypeOperationModel();
+        $promotionModel = new PromotionModel();
+
         $idTypeOperationTransfert = $typeOperationModel->getIdByLibelle('transfert');
 
         $fraisTransfert = $this->getFrais($idTypeOperationTransfert, $montant, $numeroDest);
+
+        $promotion = $promotionModel->getPromotion();
+
         $fraisRetrait = 0.0;
         $commission = 0.0;
+        $promotion = 0.0;
 
         if ($this->estAutreOperateur($numeroDest ?? '')) {
             $commission = $this->getCommission($montant, $numeroDest);
@@ -115,11 +121,16 @@ class FraisOperationModel extends Model
             $fraisRetrait = $this->getFraisRetrait($montant);
         }
 
+
+        if (!$this->estAutreOperateur($numeroDest ?? '')) {
+            $fraisTransfert = $fraisTransfert * (1 - ($promotion/100));
+        }
+
         return [
             'frais_transfert' => $fraisTransfert,
             'frais_retrait' => $fraisRetrait,
             'commission' => $commission,
-            'montant_total' => $montant + $fraisTransfert + $fraisRetrait + $commission,
+            'montant_total' => $montant + $fraisTransfert - $promotion + $fraisRetrait + $commission,
         ];
     }
 

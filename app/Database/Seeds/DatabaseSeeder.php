@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ConfigSeeder::class);
         $this->call(FraisOperationSeeder::class);
         $this->call(ClientSeeder::class);
+        $this->call(PromotionSeeder::class);
         // $this->call(TransactionSeeder::class);
     }
 }

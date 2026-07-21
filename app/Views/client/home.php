@@ -27,6 +27,21 @@
                             <i class="bi bi-eye" id="soldeIcon"></i>
                         </button>
                     </div>
+
+                </div>
+
+                <div class="p-4 rounded mt-5" style="background:var(--pmi-ink); color:var(--pmi-ivory);">
+                    <div class="font-mono text-uppercase" style="font-size:11px; letter-spacing:.18em; color:var(--pmi-mint);">Solde d'epargne</div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <div style="font-size:32px; font-weight:800;">
+                            <span id="soldeE" style="display:none;"><?= number_format($client['solde_epargne'], 2, ',', ' ') ?> Ar</span>
+                            <span id="soldeCacheE">•••••••• Ar</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-light" onclick="toggleSoldeE()" type="button">
+                            <i class="bi bi-eye" id="soldeIconE"></i>
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -36,6 +51,10 @@
         <div class="card h-100">
             <div class="card-body d-grid gap-3">
                 <h3 class="h6 text-muted text-uppercase font-mono mb-1" style="font-size:12px; letter-spacing:.18em;">Opérations</h3>
+
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEpargne">
+                    <i class="bi bi-plus-circle me-1"></i>Ajouter ou modifier mon epargne
+                </button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDepot">
                     <i class="bi bi-plus-circle me-1"></i>Faire un dépôt
                 </button>
@@ -69,6 +88,29 @@
                         <div class="d-flex justify-content-between small"><span>Frais</span><strong id="depotFrais">0 Ar</strong></div>
                         <div class="d-flex justify-content-between small mt-1"><span>Montant total</span><strong id="depotTotal">0 Ar</strong></div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Valider</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Epargne -->
+<div class="modal fade" id="modalEpargne" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="<?= base_url('modifEpargne') ?>" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier mon epargne</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Votre epargne actuelle est : <?= number_format($client['pct_epargne'], 2, ',', ' ') ?></p>
+                    <label for="depot_montant" class="form-label">Valeur en pourcentage</label>
+                    <input type="number" class="form-control" id="epargne_value" name="valeur" min="0" max="100" required>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -174,6 +216,21 @@
         }
     }
 
+    function toggleSoldeE() {
+        var solde = document.getElementById('soldeE');
+        var cache = document.getElementById('soldeCacheE');
+        var icon = document.getElementById('soldeIconE');
+        if (solde.style.display === 'none') {
+            solde.style.display = 'inline';
+            cache.style.display = 'none';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            solde.style.display = 'none';
+            cache.style.display = 'inline';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
     function formatAr(value) {
         var amount = Number(value || 0);
         return new Intl.NumberFormat('fr-FR', {
@@ -225,15 +282,17 @@
         }
 
         fetch(endpoint, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-            .then(function (response) {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function(response) {
                 if (!response.ok) {
                     throw new Error('Erreur de chargement');
                 }
                 return response.json();
             })
-            .then(function (data) {
+            .then(function(data) {
                 var fraisValeur = Number(data && data.frais !== undefined ? data.frais : (data && data.frais_transfert !== undefined ? data.frais_transfert : 0));
                 var fraisRetrait = Number(data && data.frais_retrait !== undefined ? data.frais_retrait : 0);
                 var commission = Number(data && data.commission !== undefined ? data.commission : 0);
@@ -249,7 +308,7 @@
                 totalElement.textContent = formatAr(total);
                 preview.style.display = 'block';
             })
-            .catch(function () {
+            .catch(function() {
                 fraisElement.textContent = formatAr(0);
                 if (fraisRetraitElement) {
                     fraisRetraitElement.textContent = formatAr(0);
@@ -262,14 +321,14 @@
             });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ['depot_montant', 'retrait_montant', 'transfert_montant'].forEach(function (inputId) {
+    document.addEventListener('DOMContentLoaded', function() {
+        ['depot_montant', 'retrait_montant', 'transfert_montant'].forEach(function(inputId) {
             var input = document.getElementById(inputId);
             if (!input) {
                 return;
             }
 
-            input.addEventListener('input', function () {
+            input.addEventListener('input', function() {
                 if (inputId === 'depot_montant') {
                     updatePreview('depot', 'depot_montant', 'depotPreview', 'depotFrais', 'depotTotal');
                 } else if (inputId === 'retrait_montant') {
@@ -298,8 +357,12 @@
 
             var numeros = Array.prototype.map.call(
                 transfertDestinataires.querySelectorAll('input[name="numero"], input[name="numeros[]"]'),
-                function (input) { return input.value.trim(); }
-            ).filter(function (numero) { return numero !== ''; });
+                function(input) {
+                    return input.value.trim();
+                }
+            ).filter(function(numero) {
+                return numero !== '';
+            });
 
             var montant = montantInput ? montantInput.value.trim() : '';
 
@@ -311,24 +374,28 @@
             }
 
             var endpoint = '<?= base_url('api/frais/get-multiple') ?>?montant=' + encodeURIComponent(montant);
-            numeros.forEach(function (numero) {
+            numeros.forEach(function(numero) {
                 endpoint += '&numeros_destinataire[]=' + encodeURIComponent(numero);
             });
             if (transfertCheckbox) {
                 endpoint += '&inclure_frais_retrait=' + (transfertCheckbox.checked ? '1' : '0');
             }
 
-            fetch(endpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(function (response) {
+            fetch(endpoint, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
                     if (!response.ok) {
                         throw new Error('Erreur de chargement');
                     }
                     return response.json();
                 })
-                .then(function (data) {
+                .then(function(data) {
                     var lignes = (data && data.destinataires) || [];
 
-                    details.innerHTML = lignes.map(function (ligne) {
+                    details.innerHTML = lignes.map(function(ligne) {
                         return '<div class="d-flex justify-content-between small mt-1">' +
                             '<span>' + ligne.numero + '</span>' +
                             '<strong>' + formatAr(ligne.montant_total) +
@@ -341,7 +408,7 @@
                     totalElement.textContent = formatAr(data && data.montant_total !== undefined ? data.montant_total : 0);
                     previewMultiple.style.display = 'block';
                 })
-                .catch(function () {
+                .catch(function() {
                     if (previewMultiple) {
                         previewMultiple.style.display = 'none';
                     }
@@ -371,19 +438,19 @@
             var inputs = transfertDestinataires.querySelectorAll('input[name="numero"], input[name="numeros[]"]');
             var multiple = inputs.length > 1;
 
-            inputs.forEach(function (input) {
+            inputs.forEach(function(input) {
                 input.name = multiple ? 'numeros[]' : 'numero';
             });
 
-            formTransfert.action = multiple
-                ? '<?= base_url('transfert/multiple') ?>'
-                : '<?= base_url('transfert') ?>';
+            formTransfert.action = multiple ?
+                '<?= base_url('transfert/multiple') ?>' :
+                '<?= base_url('transfert') ?>';
 
             refreshTransfertPreview();
         }
 
         if (transfertDestinataires && btnAjouterDestinataire) {
-            btnAjouterDestinataire.addEventListener('click', function () {
+            btnAjouterDestinataire.addEventListener('click', function() {
                 var group = document.createElement('div');
                 group.className = 'input-group transfert-destinataire';
                 group.innerHTML = '<input type="text" class="form-control" name="numero" placeholder="Numéro destinataire" required>' +
@@ -392,7 +459,7 @@
                 updateTransfertMode();
             });
 
-            transfertDestinataires.addEventListener('click', function (event) {
+            transfertDestinataires.addEventListener('click', function(event) {
                 var btn = event.target.closest('.btnRetirerDestinataire');
                 if (!btn) {
                     return;
@@ -401,14 +468,14 @@
                 updateTransfertMode();
             });
 
-            transfertDestinataires.addEventListener('input', function (event) {
+            transfertDestinataires.addEventListener('input', function(event) {
                 if (event.target.matches('input[name="numero"], input[name="numeros[]"]')) {
                     refreshTransfertPreview();
                 }
             });
 
-            document.getElementById('modalTransfert').addEventListener('hidden.bs.modal', function () {
-                transfertDestinataires.querySelectorAll('.transfert-destinataire').forEach(function (group, index) {
+            document.getElementById('modalTransfert').addEventListener('hidden.bs.modal', function() {
+                transfertDestinataires.querySelectorAll('.transfert-destinataire').forEach(function(group, index) {
                     if (index > 0) {
                         group.remove();
                     }
